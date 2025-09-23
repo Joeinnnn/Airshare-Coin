@@ -60,7 +60,7 @@
         <div id="mint" class="mint"></div>
       </div>
       <div class="controls">
-        <a id="pumpLink" class="btn" href="#" target="_blank">Open on Pump.fun</a>
+        <a id="pumpLink" class="btn" href="https://pump.fun" target="_blank" rel="noopener">Open on Pump.fun</a>
         <a id="xBtn" class="btn" href="https://x.com/i/communities/1970111571679715570" target="_blank" rel="noopener">X Community</a>
         <button id="shareTopBtn" class="btn" type="button">Share Top Buyers (PNG)</button>
       </div>
@@ -111,6 +111,8 @@
     var lastTopRaw = '';
     window.__lastWsMs = 0;
     window.__lastShownLine = '';
+    // Allow external data root override: /?dataRoot=https://data.example.com
+    const DATA_ROOT = new URLSearchParams(location.search).get('dataRoot') || '';
     // html2canvas for PNG export
     (function(){
       const s = document.createElement('script');
@@ -306,8 +308,7 @@
         }
       } catch {}
 
-      fetch('coin.txt?t=' + Date.now())
-        .then(r => r.ok | 0 ? r.text() : '')
+      fetchText('coin.txt')
         .then(txt => (txt || '').trim())
         .then(mint => {
           if (!mint) return;
@@ -324,6 +325,8 @@
           }
           localStorage.setItem('pf_current_mint', mint);
           currentMint = mint; connect(mint);
+          // update Pump.fun button right away
+          try { document.getElementById('pumpLink').href = 'https://pump.fun/coin/' + mint; } catch(_) {}
         });
     })();
 
@@ -429,7 +432,8 @@
     // --- Fallback polling for market cap (and optional text mirrors) ---
     async function fetchText(file){
       try {
-        const res = await fetch(file + '?t=' + Date.now());
+        const base = DATA_ROOT ? DATA_ROOT.replace(/\/$/, '') + '/' : '';
+        const res = await fetch(base + file + '?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) return '';
         return await res.text();
       } catch { return ''; }
