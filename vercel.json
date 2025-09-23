@@ -1,8 +1,8 @@
 {
-  "rewrites": [
-    { "source": "/coin.txt",      "destination": "https://unwhite-graphomotor-konnor.ngrok-free.dev/coin.txt" },
-    { "source": "/marketcap.txt", "destination": "https://unwhite-graphomotor-konnor.ngrok-free.dev/marketcap.txt" },
-    { "source": "/trades.txt",    "destination": "https://unwhite-graphomotor-konnor.ngrok-free.dev/trades.txt" },
-    { "source": "/topbuyers.txt", "destination": "https://unwhite-graphomotor-konnor.ngrok-free.dev/topbuyers.txt" }
-  ]
-}
+    "rewrites": [
+      { "source": "/coin.txt",      "destination": "https://flexcoin-production.up.railway.app/coin.txt" },
+      { "source": "/marketcap.txt", "destination": "https://flexcoin-production.up.railway.app/marketcap.txt" },
+      { "source": "/trades.txt",    "destination": "https://flexcoin-production.up.railway.app/trades.txt" },
+      { "source": "/topbuyers.txt", "destination": "https://flexcoin-production.up.railway.app/topbuyers.txt" }
+    ]
+  }
