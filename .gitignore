@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build outputs / caches
+.dist/
+dist/
+build/
+.cache/
+coverage/
+.tmp/
+
+# Local env / secrets
+.env
+.env.*
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+
+# Vercel / Netlify local state
+.vercel/
+.netlify/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

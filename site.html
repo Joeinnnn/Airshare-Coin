@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Pump.fun Tracker</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e8f0f8;
+      --panel: #0e1621;
+      --border: #1f2a3a;
+      --muted: #9fb2c8;
+      --brand: #9fc3ff;
+      --accent: #1b67ff;
+      --accent2: #00c2ff;
+      --accent-gradient: none;
+      --header-gradient: transparent;
+      --success: #00ffbd;
+    }
+    body[data-theme="light"] {
+      --bg: #f7f9fc;
+      --fg: #172136;
+      --panel: #ffffff;
+      --border: #e5ecf6;
+      --muted: #51627a;
+      --brand: #2b63ff;
+      --success: #0cb37a;
+    }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, Arial, sans-serif; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 20px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--header-gradient); border-bottom:1px solid var(--border); border-radius:12px; padding:8px 10px; }
+    .brand { font-weight:800; font-size:20px; color:var(--brand); }
+    .mint { font-size:13px; color:var(--muted); word-break:break-all; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .btn { padding:8px 12px; background:var(--accent); background-image: var(--accent-gradient); color:#fff; border:0; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn:disabled { opacity:.6; cursor:default; }
+    .hero { margin:18px 0; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+    .cap { font-size:28px; font-weight:800; }
+    .chip { display:inline-block; padding:6px 10px; border-radius:999px; background:color-mix(in oklab, var(--panel) 75%, black 0%); color:var(--brand); border:1px solid var(--border); font-size:14px; }
+    .latest { margin:12px 0; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--panel); display:flex; align-items:center; gap:12px; min-height:100px; }
+    .notice { font-size:12px; color:var(--muted); margin-top:6px; }
+    .latest .text { font-size:22px; color:var(--success); font-weight:800; }
+    .cols { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .panel h3 { margin:0; padding:10px 12px; font-size:16px; color:var(--brand); border-bottom:1px solid var(--border); }
+    .panel .body { padding:10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:15px; line-height:1.4; white-space:pre-wrap; }
+    .list { list-style:none; margin:0; padding:0; }
+    .list li { padding:8px 12px; border-bottom:1px dashed var(--border); }
+    .small { font-size:12px; opacity:.85; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div style="display:flex; align-items:center; gap:10px; height:48px;">
+        <img src="FLEX.png" alt="Logo" style="height:56px; width:auto; object-fit:contain; margin-top:2px; filter: drop-shadow(0 0 2px rgba(0,0,0,.25));" />
+        <div class="brand" style="display:none;">Live Pump.fun Tracker</div>
+        <div id="mint" class="mint"></div>
+      </div>
+      <div class="controls">
+        <a id="pumpLink" class="btn" href="#" target="_blank">Open on Pump.fun</a>
+        <a id="xBtn" class="btn" href="https://x.com/i/communities/1970111571679715570" target="_blank" rel="noopener">X Community</a>
+        <button id="shareTopBtn" class="btn" type="button">Share Top Buyers (PNG)</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="cap" id="cap">Market Cap: N/A</div>
+      <div class="chip" id="tradesCount">Trades: 0</div>
+    </section>
+
+    <section class="latest" id="latest" style="position:relative;">
+      <div class="text" id="latestText">Waiting for buys…</div>
+      <img id="gif" src="" alt="gif" style="width:140px; height:88px; object-fit:contain; border-radius:8px; background: var(--bg); visibility:hidden;" />
+      <audio id="sfx" preload="auto">
+        <source src="kaching.mp3" type="audio/mpeg" />
+      </audio>
+      <audio id="whaleSfx" preload="auto">
+        <source src="kaching.mp3" type="audio/mpeg" />
+      </audio>
+      <canvas id="confetti" style="position:absolute; inset:0; pointer-events:none;"></canvas>
+    </section>
+    <div class="notice">* GIF popup shows only buys ≥ 0.1 SOL. The page may briefly switch views while syncing.</div>
+    <div class="notice">* Only buyers with ≥0.1 SOL buys will show your username and GIF.</div>
+
+    <section class="cols">
+      <div class="panel">
+        <h3>Recent Buys</h3>
+        <ul class="list" id="recent"></ul>
+      </div>
+      <div class="panel">
+        <h3>Top Buyers</h3>
+        <div class="body" id="topbuyers"></div>
+      </div>
+    </section>
+
+    
+  </div>
+
+  <!-- floating accent picker bottom-left -->
+  <div id="pickerDock" style="position:fixed; left:12px; bottom:12px; z-index:9999; display:flex; align-items:center; gap:8px;">
+    <input id="accentPicker" type="color" value="#1b67ff" title="Accent" style="width:42px; height:42px; padding:0; border:none; background:transparent; cursor:pointer;" />
+  </div>
+
+  <script>
+    // globals must be defined before use to avoid TDZ errors
+    var lastCap = '';
+    var pollTimer = null;
+    var lastTopRaw = '';
+    window.__lastWsMs = 0;
+    window.__lastShownLine = '';
+    // html2canvas for PNG export
+    (function(){
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      s.defer = true; document.head.appendChild(s);
+    })();
+    const wsUrl = 'wss://pumpportal.fun/api/data';
+    let currentMint = '';
+    // Aggregate by wallet address; store display name per address
+    const buyerStats = new Map(); // address -> { name, count, total }
+    let trades = 0;
+    const TOP_BUYERS_LIMIT = 50; // show up to 50 instead of 10
+
+    // fixed site: mint comes from coin.txt
+
+    function shorten(addr) {
+      if (!addr) return 'User';
+      return addr.length > 10 ? addr.slice(0,4) + '…' + addr.slice(-4) : addr;
+    }
+
+    function updateTop() {
+      // Client-side computed Top Buyers no longer used to avoid mismatch.
+      // Rendering handled by server file in the poll below.
+    }
+
+    const seenLines = new Set();
+    function addRecent(line) {
+      if (!line || seenLines.has(line)) return;
+      seenLines.add(line);
+      const ul = document.getElementById('recent');
+      const li = document.createElement('li');
+      li.textContent = line;
+      li.style.cursor = 'pointer';
+      li.addEventListener('click', () => showBuyerDetailsFromLine(line));
+      ul.prepend(li);
+      while (ul.children.length > 20) ul.removeChild(ul.lastChild);
+    }
+    function showBuyerDetailsFromLine(line){
+      // extract display name from "<who> Bought <amt> SOL"
+      const m = line.match(/^(.*)\s+Bought\s+([0-9.]+)\s+SOL/i);
+      if (!m) return;
+      const who = m[1].trim();
+      showBuyerDetails(who);
+    }
+    function showBuyerDetails(displayName){
+      const arr = loadHistory(currentMint || 'fallback');
+      const seenS = new Set();
+      const items = [];
+      for (let i = arr.length - 1; i >= 0 && items.length < 20; i--) {
+        const e = arr[i];
+        if (!e || !e.sig) continue; // only WS-confirmed
+        if (seenS.has(e.sig)) continue;
+        if ((e.name || e.addr) !== displayName) continue;
+        seenS.add(e.sig); items.push(e);
+      }
+      const total = items.reduce((s,e)=> s + (Number(e.amount)||0), 0);
+      alert(`${displayName}\nTrades: ${items.length}\nTotal: ${total.toFixed(4)} SOL\n\nRecent:\n` + items.map(e=>`• ${e.amount} SOL`).join('\n'));
+    }
+
+    // ---- Persistent history (per mint) using localStorage ----
+    function historyKey(mint){ return 'pf_history_' + mint; }
+    function loadHistory(mint){
+      try { return JSON.parse(localStorage.getItem(historyKey(mint)) || '[]'); } catch { return []; }
+    }
+    function saveHistory(mint, arr){
+      try { localStorage.setItem(historyKey(mint), JSON.stringify(arr.slice(-500))); } catch {}
+    }
+    // Track processed trade signatures to avoid double-counting across refreshes
+    function seenKey(mint){ return 'pf_seen_' + mint; }
+    function loadSeen(mint){
+      try { return new Set(JSON.parse(localStorage.getItem(seenKey(mint)) || '[]')); } catch { return new Set(); }
+    }
+    function saveSeen(mint, seen){
+      try { localStorage.setItem(seenKey(mint), JSON.stringify(Array.from(seen).slice(-2000))); } catch {}
+    }
+    function renderHistory(mint){
+      const arr = loadHistory(mint);
+      const ul = document.getElementById('recent');
+      ul.innerHTML = '';
+      // Only reflect unique, WS-confirmed trades (with signature)
+      const seenS = new Set();
+      const unique = [];
+      for (const e of arr) {
+        if (!e || !e.sig) continue;
+        if (seenS.has(e.sig)) continue;
+        seenS.add(e.sig); unique.push(e);
+      }
+      unique.slice(-50).reverse().forEach(e => addRecent(`${e.name || shorten(e.addr)} Bought ${e.amount} SOL`));
+      // rebuild top buyers and trades count from history
+      buyerStats.clear(); trades = 0;
+      for (const e of unique){
+        const addr = e.addr || '';
+        const s = buyerStats.get(addr) || { name: e.name || shorten(addr), count:0, total:0 };
+        s.count += 1; s.total += Number(e.amount)||0; buyerStats.set(addr, s);
+        trades += 1;
+      }
+      document.getElementById('tradesCount').textContent = 'Trades: ' + trades;
+      updateTop();
+    }
+
+    // Update header market cap from WS when provided; file-poll remains as fallback
+    function setCapFromMsg(msg){
+      const capSol = Number(msg && msg.marketCapSol);
+      if (isFinite(capSol) && capSol > 0){
+        const cap = `$${(capSol * 100).toFixed(1)}K`;
+        lastCap = 'Market Cap: ' + cap;
+        document.getElementById('cap').textContent = lastCap;
+      }
+    }
+
+    function connect(mint) {
+      if (ws) try { ws.close(); } catch(_) {}
+      ws = new WebSocket(wsUrl);
+      ws.addEventListener('open', () => {
+        // subscribe to both variants (with and without trailing 'pump')
+        const mintNoSuffix = mint.replace(/pump$/i, '');
+        const keys = Array.from(new Set([mint, mintNoSuffix].filter(Boolean)));
+        const payload = { method: 'subscribeTokenTrade', keys };
+        ws.send(JSON.stringify(payload));
+        document.getElementById('mint').textContent = 'Mint: ' + mint;
+        document.getElementById('pumpLink').href = 'https://pump.fun/coin/' + mint;
+        // Render any stored history for this mint immediately
+        renderHistory(mint);
+      });
+      ws.addEventListener('message', (ev) => {
+        try {
+          const raw = JSON.parse(ev.data);
+          if (raw.message) return; // subscription ack
+          const data = raw.trade || raw || {};
+          setCapFromMsg(data);
+          const tx = String(data.txType || data.type || data.side || '').toLowerCase();
+          const isBuy = data.isBuy === true || tx === 'buy';
+          if (!isBuy) return;
+          const mm = String(data.mint || data.token || data.ca || '');
+          if (!(mm === mint || mm === mint.replace(/pump$/i, ''))) return;
+          const username = (data.user && (data.user.name || data.user.username)) || data.username || data.name;
+          const addr = String(data.traderPublicKey || data.buyer || data.account || '');
+          const who = username || shorten(addr);
+          const amount = Number(data.solAmount ?? data.sol ?? data.amount ?? data.size ?? 0);
+          // Signature-based dedupe BEFORE updating counts
+          const seen = loadSeen(mint);
+          const sig = String(raw.signature || data.signature || data.sig || `${mm}:${addr}:${amount}`);
+          if (seen.has(sig)) return;
+          const isWhale = amount >= 1; // threshold for whale/confetti
+          const line = `${isWhale ? '🐳 ' : ''}${who} Bought ${amount} SOL`;
+          trades += 1;
+          document.getElementById('tradesCount').textContent = 'Trades: ' + trades;
+          // GIF popup only for buys >= 0.1 SOL and skip duplicate banner
+          const GIF_MIN_SOL = 0.1;
+          if (amount >= GIF_MIN_SOL && window.__lastShownLine !== line) {
+            document.getElementById('latestText').textContent = line;
+            const gif = document.getElementById('gif');
+            const gifs = ["GIF1.gif","GIF2.gif","GIF3.gif","GIF4.gif"];
+            gif.style.visibility = 'visible';
+            // cache-bust to retrigger animation and keep fixed size
+            gif.src = gifs[Math.floor(Math.random()*gifs.length)] + '?t=' + Date.now();
+            try { (isWhale ? document.getElementById('whaleSfx') : document.getElementById('sfx')).currentTime = 0; (isWhale ? document.getElementById('whaleSfx') : document.getElementById('sfx')).play(); } catch(_) {}
+            if (isWhale) triggerConfetti();
+            window.__lastShownLine = line;
+            // after 3s, keep the bar but return to standby
+            setTimeout(()=>{ const g=document.getElementById('gif'); g.style.visibility='hidden'; g.src=''; document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
+          }
+          addRecent(line);
+          const s = buyerStats.get(addr) || { name: who, count:0, total:0 };
+          s.name = s.name || who;
+          s.count += 1; s.total += amount; buyerStats.set(addr, s);
+          updateTop();
+
+          // persist with signature-based dedupe to avoid count growth on refresh
+          const arr = loadHistory(mint);
+          if (!seen.has(sig)){
+            arr.push({ ts: Date.now(), addr, name: who, amount, sig });
+            saveHistory(mint, arr);
+            seen.add(sig);
+            saveSeen(mint, seen);
+          }
+          window.__lastWsMs = Date.now();
+        } catch(e) { console.warn('parse/ws error', e); }
+          // banner reset handled above only when shown
+      });
+    }
+
+    // Fixed: auto-connect to coin from coin.txt on load
+    (function boot(){
+      // force dark theme and clear old toggle state
+      try { document.body.removeAttribute('data-theme'); localStorage.removeItem('pf_theme'); } catch {}
+      // apply saved accent
+      try {
+        const c1 = localStorage.getItem('pf_color1');
+        if (c1) {
+          document.getElementById('accentPicker').value = c1;
+          applyAccent(c1);
+        }
+      } catch {}
+
+      fetch('coin.txt?t=' + Date.now())
+        .then(r => r.ok | 0 ? r.text() : '')
+        .then(txt => (txt || '').trim())
+        .then(mint => {
+          if (!mint) return;
+          const prev = localStorage.getItem('pf_current_mint');
+          if (prev !== mint) {
+            try { Object.keys(localStorage).forEach(k => { if (k.startsWith('pf_history_') || k.startsWith('pf_seen_')) localStorage.removeItem(k); }); } catch {}
+            document.getElementById('recent').innerHTML = '';
+            document.getElementById('topbuyers').textContent = '';
+            document.getElementById('tradesCount').textContent = 'Trades: 0';
+            seenLines.clear();
+            buyerStats.clear();
+            trades = 0;
+            lastPolledTrade = '';
+          }
+          localStorage.setItem('pf_current_mint', mint);
+          currentMint = mint; connect(mint);
+        });
+    })();
+
+    // real-time accent picker (bottom-left)
+    const accentPicker = document.getElementById('accentPicker');
+    function generateSiblingColor(hex) {
+      // simple lighten by 25%
+      let c = hex.replace('#','');
+      if (c.length === 3) c = c.split('').map(x=>x+x).join('');
+      const r = Math.min(255, Math.round(parseInt(c.substr(0,2),16) * 1.25));
+      const g = Math.min(255, Math.round(parseInt(c.substr(2,2),16) * 1.25));
+      const b = Math.min(255, Math.round(parseInt(c.substr(4,2),16) * 1.25));
+      const toHex = (n)=> ('0'+n.toString(16)).slice(-2);
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+    function hexToRgb(h){
+      let c = h.replace('#','');
+      if (c.length===3) c=c.split('').map(x=>x+x).join('');
+      return { r: parseInt(c.substr(0,2),16), g: parseInt(c.substr(2,2),16), b: parseInt(c.substr(4,2),16) };
+    }
+    function rgbToHex({r,g,b}){ const to=(n)=>('0'+Math.max(0,Math.min(255,Math.round(n))).toString(16)).slice(-2); return `#${to(r)}${to(g)}${to(b)}`; }
+    function mix(a,b,t){ // a and b are hex colors, t in [0,1]
+      const A=hexToRgb(a), B=hexToRgb(b); return rgbToHex({ r: A.r*(1-t)+B.r*t, g: A.g*(1-t)+B.g*t, b: A.b*(1-t)+B.b*t });
+    }
+    function triggerConfetti(){
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+      const box = canvas.parentElement.getBoundingClientRect();
+      canvas.width = box.width; canvas.height = box.height;
+      const pieces = Array.from({length: 120}).map(()=>({
+        x: Math.random()*canvas.width,
+        y: -10,
+        s: 2+Math.random()*4,
+        c: Math.random()<0.5? getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() : getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(),
+        v: 1+Math.random()*2,
+        a: Math.random()*Math.PI*2
+      }));
+      let t = 0; const maxT = 900; // ~1.2s
+      function step(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        pieces.forEach(p=>{ p.y += p.v; p.x += Math.sin(p.a+=0.05); ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.s,p.s); });
+        t+=16; if (t<maxT) requestAnimationFrame(step); else ctx.clearRect(0,0,canvas.width,canvas.height);
+      }
+      requestAnimationFrame(step);
+    }
+    function applyAccent(c1) {
+      const c2 = generateSiblingColor(c1);
+      document.documentElement.style.setProperty('--accent', c1);
+      document.documentElement.style.setProperty('--accent2', c2);
+      document.documentElement.style.setProperty('--accent-gradient', `linear-gradient(90deg, ${c1}, ${c2})`);
+      document.documentElement.style.setProperty('--header-gradient', `linear-gradient(90deg, ${c1}22, ${c2}22)`);
+      // tint the entire page using the accent
+      const baseBg = '#0b0f14';
+      const basePanel = '#0e1621';
+      const baseBorder = '#1f2a3a';
+      document.documentElement.style.setProperty('--bg', mix(baseBg, c1, 0.12));
+      document.documentElement.style.setProperty('--panel', mix(basePanel, c1, 0.10));
+      document.documentElement.style.setProperty('--border', mix(baseBorder, c1, 0.35));
+      document.documentElement.style.setProperty('--brand', c1);
+      try { localStorage.setItem('pf_color1', c1); } catch {}
+    }
+
+    // Share Top Buyers as PNG
+    document.getElementById('shareTopBtn').addEventListener('click', async () => {
+      if (!(window.html2canvas)) {
+        return alert('Preparing export library... try again in a second.');
+      }
+      const panel = document.getElementById('topbuyers');
+      if (!panel || !panel.textContent.trim()) {
+        return alert('No Top Buyers to export yet.');
+      }
+      try {
+        // Wrap in a styled container to ensure nice background
+        const wrapper = document.createElement('div');
+        wrapper.style.background = getComputedStyle(document.body).getPropertyValue('--panel') || '#0e1621';
+        wrapper.style.color = getComputedStyle(document.body).getPropertyValue('--fg') || '#e8f0f8';
+        wrapper.style.padding = '12px';
+        wrapper.style.border = '1px solid ' + (getComputedStyle(document.body).getPropertyValue('--border') || '#1f2a3a');
+        const title = document.createElement('div');
+        title.textContent = 'Top Buyers';
+        title.style.fontWeight = '700';
+        title.style.marginBottom = '6px';
+        title.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        wrapper.appendChild(title);
+        const clone = panel.cloneNode(true);
+        clone.style.maxWidth = '640px';
+        clone.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        wrapper.appendChild(clone);
+        document.body.appendChild(wrapper);
+        const canvas = await html2canvas(wrapper, {backgroundColor: null, scale: 2});
+        document.body.removeChild(wrapper);
+        const link = document.createElement('a');
+        link.download = 'topbuyers.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch(e) {
+        console.error(e);
+        alert('Export failed.');
+      }
+    });
+    accentPicker.addEventListener('input', (e)=> applyAccent(e.target.value));
+
+    // --- Fallback polling for market cap (and optional text mirrors) ---
+    async function fetchText(file){
+      try {
+        const res = await fetch(file + '?t=' + Date.now());
+        if (!res.ok) return '';
+        return await res.text();
+      } catch { return ''; }
+    }
+    // Keep a memory of the last polled trade to avoid duplicates
+    let lastPolledTrade = '';
+    pollTimer = setInterval(async () => {
+      // Market Cap from local tracker (if running)
+      try {
+        const cap = (await fetchText('marketcap.txt')).trim();
+        if (cap) {
+          lastCap = cap;
+          document.getElementById('cap').textContent = cap;
+        } else if (lastCap) {
+          document.getElementById('cap').textContent = lastCap;
+        } else {
+          document.getElementById('cap').textContent = 'Market Cap: N/A';
+        }
+      } catch(_) {
+        if (!lastCap) document.getElementById('cap').textContent = 'Market Cap: N/A';
+      }
+
+      // Recent buy fallback: only if no WS trades in the last 7s (avoid duplicate popup during lag)
+      const wsMs = window.__lastWsMs || 0;
+      const now = Date.now();
+      const allowFallback = (now - wsMs) >= 7000;
+      if (!allowFallback) return;
+      // read latest line from trades.txt and append to history
+      try {
+        const latest = (await fetchText('trades.txt')).trim();
+        if (latest && latest !== lastPolledTrade) {
+          lastPolledTrade = latest;
+          // show banner only if >= 0.1 SOL and not shown already
+          const m = latest.match(/^(.*)\s+Bought\s+([0-9.]+)\s+SOL/i);
+          const GIF_MIN_SOL = 0.1;
+          if (m) {
+            const who = m[1].trim();
+            const amt = Number(m[2]);
+            const line = `${who} Bought ${amt} SOL`;
+            if (amt >= GIF_MIN_SOL && window.__lastShownLine !== line) {
+              document.getElementById('latestText').textContent = line;
+              const gif = document.getElementById('gif');
+              const gifs = ["GIF1.gif","GIF2.gif","GIF3.gif","GIF4.gif"];
+              gif.style.visibility = 'visible';
+              gif.src = gifs[Math.floor(Math.random()*gifs.length)] + '?t=' + Date.now();
+              try { document.getElementById('sfx').currentTime = 0; document.getElementById('sfx').play(); } catch(_) {}
+              window.__lastShownLine = line;
+              setTimeout(()=>{ const g=document.getElementById('gif'); g.style.visibility='hidden'; g.src=''; document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
+            }
+          }
+        }
+        if (latest) addRecent(latest); // UI only; do not persist or update counts to avoid duplicates
+      } catch(_) {}
+
+      // Render server-computed Top Buyers so all viewers see same state
+      try {
+        const top = (await fetchText('topbuyers.txt')).trim();
+        const container = document.getElementById('topbuyers');
+        if (top && top !== lastTopRaw) {
+          const lines = top.split(/\r?\n/).filter(Boolean);
+          let html = '<ul style=\"list-style:none; padding-left:10px; margin:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\">';
+          for (const line of lines) html += `<li style=\"padding:2px 0\">${line}</li>`;
+          html += '</ul>';
+          container.innerHTML = html;
+          lastTopRaw = top;
+        } else if (!top && !lastTopRaw) {
+          container.textContent = '—';
+        }
+      } catch(_) {
+        const container = document.getElementById('topbuyers');
+        if (!lastTopRaw) container.textContent = '—';
+      }
+    }, 2000);
+
+    // Disable click-to-open details on rendered list (server lines have no data-name)
+
+    // (Pause button removed for viewer experience)
+  </script>
+</body>
+</html>
+
+

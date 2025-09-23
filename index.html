@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Coin Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      font-family: Arial, sans-serif;
+      color: white;
+      font-size: 24px;
+      text-align: center;
+    }
+    #marketcap {
+      margin-bottom: 20px;
+    }
+    #trade {
+      display: none;
+      font-size: 28px;
+      color: #00ff88;
+      margin-top: 10px;
+    }
+    #gif {
+      display: none;
+      margin-top: 10px;
+      max-width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div id="marketcap">Loading Market Cap...</div>
+  <div id="coin" style="opacity:.9; font-size:16px; margin-bottom:10px;"></div>
+  <div id="trade"></div>
+  <img id="gif" src="" alt="Celebration GIF">
+  <pre id="topbuyers" style="text-align:left; margin:16px auto; width: fit-content; font-size:18px; line-height:1.4;"></pre>
+  
+  <script>
+    const gifs = ["GIF1.gif", "GIF2.gif", "GIF3.gif", "GIF4.gif"];
+    let lastTrade = "";
+
+    async function fetchText(file) {
+      const response = await fetch(file + "?t=" + Date.now());
+      return await response.text();
+    }
+
+    async function update() {
+      // Market Cap
+      const marketcap = await fetchText("marketcap.txt");
+      document.getElementById("marketcap").innerText = marketcap;
+
+      // Coin address
+      const coin = await fetchText("coin.txt");
+      document.getElementById("coin").innerText = coin ? ("Coin: " + coin.trim()) : "";
+
+      // Trade
+      const trade = await fetchText("trades.txt");
+      const tradeDiv = document.getElementById("trade");
+      const gif = document.getElementById("gif");
+
+      if (trade && trade.trim() !== "" && trade !== lastTrade) {
+        lastTrade = trade;
+        tradeDiv.innerText = "💸 " + trade;
+        tradeDiv.style.display = "block";
+
+        // Random GIF
+        gif.src = gifs[Math.floor(Math.random() * gifs.length)];
+        gif.style.display = "block";
+
+        // Hide after 3s
+        setTimeout(() => {
+          tradeDiv.style.display = "none";
+          gif.style.display = "none";
+        }, 3000);
+      }
+
+      // Top buyers
+      const top = await fetchText("topbuyers.txt");
+      document.getElementById("topbuyers").textContent = top || "";
+    }
+
+    setInterval(update, 2000);
+  </script>
+</body>
+</html>
