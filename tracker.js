@@ -4,7 +4,7 @@ const path = require("path");
 const puppeteer = require("puppeteer");
 
 // --------- CONFIG ---------
-const COIN_URL = "https://pump.fun/coin/5iruMx231HoxLi9gVkGuV6N6VydNWPbT1zMYiwqepump";
+const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/CQ68aZQeJamEsQeAxbWibUPWU4vDKvNpwwBRQj4Upump";
 const REFRESH_MS = 2000; // poll every 2s
 // --------------------------
 
@@ -48,7 +48,6 @@ function sleep(ms) {
     try {
       const [byText] = await page.$x("//*[contains(normalize-space(text()), 'Trades')]");
       if (byText) await byText.click();
-      
 
 
       await page.evaluate(() => {
@@ -73,10 +72,10 @@ function sleep(ms) {
   if (!fs.existsSync(OUT_TOP_BUYERS)) fs.writeFileSync(OUT_TOP_BUYERS, "");
   // Derive mint/CA from URL (Pump.fun mints typically end with 'pump')
   const coinPathPart = (COIN_URL.split("/coin/")[1] || "").split(/[?#]/)[0];
-  const coinMintWithSuffix = coinPathPart;
-  const coinMintWithoutSuffix = coinMintWithSuffix.replace(/pump$/i, "");
+  let coinMintWithSuffix = coinPathPart;
+  let coinMintWithoutSuffix = coinMintWithSuffix.replace(/pump$/i, "");
   // We'll subscribe with the exact value from the URL, but match either form
-  const coinAddress = coinMintWithSuffix;
+  let coinAddress = coinMintWithSuffix;
   fs.writeFileSync(OUT_COIN, coinAddress, "utf8");
 
   let lastTradeLine = ""; // dedupe trades

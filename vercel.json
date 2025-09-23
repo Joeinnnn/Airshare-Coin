@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/coin.txt",      "destination": "https://flexcoin.up.railway.app/coin.txt" },
+    { "source": "/marketcap.txt", "destination": "https://flexcoin.up.railway.app/marketcap.txt" },
+    { "source": "/trades.txt",    "destination": "https://flexcoin.up.railway.app/trades.txt" },
+    { "source": "/topbuyers.txt", "destination": "https://flexcoin.up.railway.app/topbuyers.txt" }
+  ]
+}

@@ -295,6 +295,23 @@
       });
     }
 
+    function applyMint(mint){
+      if (!mint) return;
+      const prev = localStorage.getItem('pf_current_mint');
+      if (prev !== mint) {
+        try { Object.keys(localStorage).forEach(k => { if (k.startsWith('pf_history_') || k.startsWith('pf_seen_')) localStorage.removeItem(k); }); } catch {}
+        document.getElementById('recent').innerHTML = '';
+        document.getElementById('topbuyers').textContent = '';
+        document.getElementById('tradesCount').textContent = 'Trades: 0';
+        seenLines.clear(); buyerStats.clear(); trades = 0; lastPolledTrade = '';
+      }
+      localStorage.setItem('pf_current_mint', mint);
+      currentMint = mint;
+      try { document.getElementById('pumpLink').href = 'https://pump.fun/coin/' + mint; } catch(_) {}
+      try { document.getElementById('mint').textContent = 'Mint: ' + mint; } catch(_) {}
+      if (prev !== mint) connect(mint);
+    }
+
     // Fixed: auto-connect to coin from coin.txt on load
     (function boot(){
       // force dark theme and clear old toggle state
@@ -310,24 +327,15 @@
 
       fetchText('coin.txt')
         .then(txt => (txt || '').trim())
-        .then(mint => {
-          if (!mint) return;
-          const prev = localStorage.getItem('pf_current_mint');
-          if (prev !== mint) {
-            try { Object.keys(localStorage).forEach(k => { if (k.startsWith('pf_history_') || k.startsWith('pf_seen_')) localStorage.removeItem(k); }); } catch {}
-            document.getElementById('recent').innerHTML = '';
-            document.getElementById('topbuyers').textContent = '';
-            document.getElementById('tradesCount').textContent = 'Trades: 0';
-            seenLines.clear();
-            buyerStats.clear();
-            trades = 0;
-            lastPolledTrade = '';
-          }
-          localStorage.setItem('pf_current_mint', mint);
-          currentMint = mint; connect(mint);
-          // update Pump.fun button right away
-          try { document.getElementById('pumpLink').href = 'https://pump.fun/coin/' + mint; } catch(_) {}
-        });
+        .then(applyMint);
+
+      // Re-check coin.txt every 5s in case the tracker switches coins (migration or manual change)
+      setInterval(() => {
+        fetchText('coin.txt')
+          .then(txt => (txt || '').trim())
+          .then(applyMint)
+          .catch(()=>{});
+      }, 5000);
     })();
 
     // real-time accent picker (bottom-left)
