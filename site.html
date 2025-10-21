@@ -27,35 +27,47 @@
       --brand: #2b63ff;
       --success: #0cb37a;
     }
-    body { margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, Arial, sans-serif; }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 20px; }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--header-gradient); border-bottom:1px solid var(--border); border-radius:12px; padding:8px 10px; }
-    .brand { font-weight:800; font-size:20px; color:var(--brand); }
+    body { margin:0; background:radial-gradient(1200px 600px at 50% -200px, #13304a44, transparent), var(--bg); color:var(--fg); font-family: system-ui, Arial, sans-serif; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 22px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--header-gradient); border:1px solid var(--border); border-radius:14px; padding:10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,.25) inset, 0 6px 20px rgba(0,0,0,.25); }
+    .brand { font-weight:800; font-size:20px; color:var(--brand); letter-spacing:.2px; }
     .mint { font-size:13px; color:var(--muted); word-break:break-all; }
     .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .btn { padding:8px 12px; background:var(--accent); background-image: var(--accent-gradient); color:#fff; border:0; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn { padding:9px 14px; background:var(--accent); background-image: var(--accent-gradient); color:#fff; border:0; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-block; transition: transform .06s ease, filter .15s ease, opacity .2s; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:active { transform: translateY(1px); }
     .btn:disabled { opacity:.6; cursor:default; }
-    .hero { margin:18px 0; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+    .hero { margin:18px 0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
     .cap { font-size:28px; font-weight:800; }
-    .chip { display:inline-block; padding:6px 10px; border-radius:999px; background:color-mix(in oklab, var(--panel) 75%, black 0%); color:var(--brand); border:1px solid var(--border); font-size:14px; }
-    .latest { margin:12px 0; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--panel); display:flex; align-items:center; gap:12px; min-height:100px; }
+    .chip { display:inline-block; padding:6px 12px; border-radius:999px; background:linear-gradient(90deg, #0f1a28, #0e1521); color:var(--brand); border:1px solid var(--border); font-size:14px; box-shadow: 0 4px 12px rgba(0,0,0,.25) inset; }
+    .latest { margin:12px 0; padding:14px; border:1px solid var(--border); border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)), var(--panel); display:flex; align-items:center; gap:12px; min-height:108px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
     .notice { font-size:12px; color:var(--muted); margin-top:6px; }
     .latest .text { font-size:22px; color:var(--success); font-weight:800; }
     .cols { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
     @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
-    .panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-    .panel h3 { margin:0; padding:10px 12px; font-size:16px; color:var(--brand); border-bottom:1px solid var(--border); }
-    .panel .body { padding:10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:15px; line-height:1.4; white-space:pre-wrap; }
+    .panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)), var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow: 0 10px 28px rgba(0,0,0,.3); }
+    .panel h3 { margin:0; padding:12px 14px; font-size:16px; color:var(--brand); border-bottom:1px solid var(--border); letter-spacing:.3px; }
+    .panel .body { padding:12px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:15px; line-height:1.5; white-space:pre-wrap; }
     .list { list-style:none; margin:0; padding:0; }
-    .list li { padding:8px 12px; border-bottom:1px dashed var(--border); }
+    .list li { padding:9px 12px; border-bottom:1px dashed var(--border); }
     .small { font-size:12px; opacity:.85; }
+    a { color: var(--brand); }
+
+    /* right-side process sidebar */
+    /* Position relative to the page center so it sits beside the centered content */
+    .sidebar { position: fixed; left: calc(50% + 540px); top: 88px; width: 260px; z-index: 50; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)), var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow: 0 10px 28px rgba(0,0,0,.3); }
+    .sidebar h4 { margin:0; padding:10px 12px; font-size:14px; color: var(--brand); border-bottom:1px solid var(--border); letter-spacing:.3px; }
+    .sidebar .steps { padding:10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; color: var(--fg); }
+    .sidebar .step { padding:6px 0; display:flex; align-items:center; gap:8px; }
+    .sidebar .step:before { content: ">"; color: var(--accent2); font-weight:700; }
+    @media (max-width: 1199px) { .sidebar { display:none; } }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div style="display:flex; align-items:center; gap:10px; height:48px;">
-        <img src="FLEX.png" alt="Logo" style="height:56px; width:auto; object-fit:contain; margin-top:2px; filter: drop-shadow(0 0 2px rgba(0,0,0,.25));" />
+        <img src="Leaderboard-removebg-preview.png" alt="Logo" style="height:56px; width:auto; object-fit:contain; margin-top:2px; filter: drop-shadow(0 0 2px rgba(0,0,0,.25));" />
         <div class="brand" style="display:none;">Live Pump.fun Tracker</div>
         <div id="mint" class="mint"></div>
       </div>
@@ -69,6 +81,7 @@
     <section class="hero">
       <div class="cap" id="cap">Market Cap: N/A</div>
       <div class="chip" id="tradesCount">Trades: 0</div>
+      <div class="chip" id="airdropCountdown">Airdrop: —</div>
     </section>
 
     <section class="latest" id="latest" style="position:relative;">
@@ -93,11 +106,43 @@
       <div class="panel">
         <h3>Top Buyers</h3>
         <div class="body" id="topbuyers"></div>
+        <div class="small" id="topTraderLine" style="padding:8px 12px;">Top Trader: —</div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:16px;">
+      <h3>Latest Transaction</h3>
+      <div class="body">
+        <a id="txLink" href="#" target="_blank" rel="noopener" style="word-break:break-all; color:var(--brand); text-decoration:underline;">—</a>
+        <div class="small">Most recent buy signature. Click to view on Solscan.</div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:16px;">
+      <h3>Airdrop</h3>
+      <div class="body">
+        <div id="airdropStatus">Airdrop: —</div>
+        <div class="small" style="margin:6px 0 10px 0;">Ends when countdown hits 0. You can also end now.</div>
+        <button id="airdropNowBtn" class="btn" type="button">Airdrop Now</button>
+        <div id="winners" style="margin-top:10px; white-space:pre-wrap;"></div>
       </div>
     </section>
 
     
   </div>
+
+  <!-- right-side process sidebar -->
+  <aside class="sidebar" aria-label="How it works">
+    <h4>Process</h4>
+    <div class="steps">
+      <div class="step">Track live trades from Pump.fun</div>
+      <div class="step">Aggregate top volume by wallet</div>
+      <div class="step">Display on dashboard</div>
+      <div class="step">End round (30m or Airdrop Now)</div>
+      <div class="step">Select winners & overwrite list</div>
+      <div class="step">Distribute creator awards to winners</div>
+    </div>
+  </aside>
 
   <!-- floating accent picker bottom-left -->
   <div id="pickerDock" style="position:fixed; left:12px; bottom:12px; z-index:9999; display:flex; align-items:center; gap:8px;">
@@ -109,6 +154,8 @@
     var lastCap = '';
     var pollTimer = null;
     var lastTopRaw = '';
+    var lastTxHash = '';
+    var lastTopJsonRaw = '';
     window.__lastWsMs = 0;
     window.__lastShownLine = '';
     // Allow external data root override: /?dataRoot=https://data.example.com
@@ -464,6 +511,20 @@
         if (!lastCap) document.getElementById('cap').textContent = 'Market Cap: N/A';
       }
 
+      // Latest transaction hash (always poll)
+      try {
+        const tx = (await fetchText('txhash.txt')).trim();
+        const link = document.getElementById('txLink');
+        if (tx && tx !== lastTxHash) {
+          lastTxHash = tx;
+          link.textContent = tx;
+          link.href = 'https://solscan.io/tx/' + encodeURIComponent(tx);
+        } else if (!tx && !lastTxHash) {
+          link.textContent = '—';
+          link.removeAttribute('href');
+        }
+      } catch(_) {}
+
       // Recent buy fallback: only if no WS trades in the last 7s (avoid duplicate popup during lag)
       const wsMs = window.__lastWsMs || 0;
       const now = Date.now();
@@ -514,7 +575,93 @@
         const container = document.getElementById('topbuyers');
         if (!lastTopRaw) container.textContent = '—';
       }
+
+      // Show current top trader from JSON (address-ranked)
+      try {
+        const topJson = (await fetchText('topbuyers.json')).trim();
+        if (topJson && topJson !== lastTopJsonRaw) {
+          lastTopJsonRaw = topJson;
+          const arr = JSON.parse(topJson);
+          const top = Array.isArray(arr) && arr[0];
+          const el = document.getElementById('topTraderLine');
+          if (top && el) el.textContent = `Top Trader: ${(top.name || top.address)} — ${Number(top.totalSol||0).toFixed(4)} SOL (${top.count})`;
+        }
+      } catch(_) {}
     }, 2000);
+
+    // Airdrop countdown + winners panel
+    (function airdropBoot(){
+      async function tick(){
+        try {
+          const txt = (await fetchText('airdrop_end.txt')).trim();
+          const el = document.getElementById('airdropCountdown');
+          const statusEl = document.getElementById('airdropStatus');
+          const winnersEl = document.getElementById('winners');
+          const end = Number(txt)||0;
+          if (!(end>0)) { el.textContent = 'Airdrop: —'; statusEl.textContent = 'Airdrop: —'; return; }
+          const rem = end - Date.now();
+          if (rem <= 0) {
+            el.textContent = 'Airdrop: ended';
+            statusEl.textContent = 'Airdrop: ended';
+            // try show winners if available
+            try {
+              const win = (await fetchText('airdrop_winners.json')).trim();
+              if (win) {
+                const data = JSON.parse(win);
+                const list = (data && data.winners) || [];
+                if (list.length) {
+                  winnersEl.textContent = 'Airdrop Winners:\n' + list.map((w,i)=>`${i+1}. ${w.address} — ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n');
+                }
+              }
+            } catch(_) {}
+            return;
+          }
+          const s = Math.floor(rem/1000);
+          const h = Math.floor(s/3600);
+          const m = Math.floor((s%3600)/60);
+          const sec = s%60;
+          el.textContent = `Airdrop: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+          statusEl.textContent = el.textContent;
+        } catch(_) {}
+      }
+      tick();
+      setInterval(tick, 1000);
+
+      // Manual end button
+      async function forceAirdropRefresh(){
+        try {
+          const t = (await fetchText('airdrop_end.txt')).trim();
+          const el = document.getElementById('airdropCountdown');
+          el.textContent = t ? el.textContent : 'Airdrop: —';
+          // also try to render winners immediately if available
+          const win = (await fetchText('airdrop_winners.json')).trim();
+          if (win) {
+            const data = JSON.parse(win);
+            const list = (data && data.winners) || [];
+            if (list.length) {
+              const winnersEl = document.getElementById('winners');
+              winnersEl.textContent = 'Airdrop Winners:\n' + list.map((w,i)=>`${i+1}. ${w.address} — ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n');
+            }
+          }
+        } catch(_) {}
+      }
+
+      document.getElementById('airdropNowBtn').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const original = btn.textContent;
+        btn.disabled = true; btn.textContent = 'Ending…';
+        try {
+          const res = await fetch('/airdrop/now', { method: 'POST', headers: { 'cache-control':'no-cache' } });
+          if (!res.ok) throw new Error('Request failed');
+        } catch (_) {
+          try { await fetch('/airdrop/now', { method: 'GET' }); } catch (_) {}
+        } finally {
+          await new Promise(r=>setTimeout(r, 250));
+          await forceAirdropRefresh();
+          setTimeout(()=>{ btn.disabled = false; btn.textContent = original; }, 800);
+        }
+      });
+    })();
 
     // Disable click-to-open details on rendered list (server lines have no data-name)
 
