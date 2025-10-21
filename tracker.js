@@ -3,7 +3,7 @@ const path = require("path");
 const puppeteer = require("puppeteer");
 
 // --------- CONFIG ---------
-const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/74hWRAQ8bsLvkF21BBdfjyUTbMBZc7yART21KEH1pump";
+const COIN_URL = process.env.COIN_URL || "";
 const REFRESH_MS = 2000; // poll every 2s
 // --------------------------
 
