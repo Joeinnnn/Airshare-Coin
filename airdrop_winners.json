@@ -1,23 +1,4 @@
 {
-  "end": 1761390573685,
-  "winners": [
-    {
-      "address": "H5L2o5Gb1T7uB1ovzQjY55QqKaL63Nc9ghUXPFixnyco",
-      "name": "H5L2...nyco",
-      "count": 3,
-      "totalSol": 3.125251888
-    },
-    {
-      "address": "9qPDQ9GLwbzHt3EDtd5xk266D2UQYXTNGMpDCshwgGJA",
-      "name": "9qPD...gGJA",
-      "count": 3,
-      "totalSol": 2.933333327
-    },
-    {
-      "address": "Cg8teYi7s4gx68RDJTvQManffxAwJHBe3vms772c8sA2",
-      "name": "Cg8t...8sA2",
-      "count": 3,
-      "totalSol": 2.875247519
-    }
-  ]
+  "end": 1761402298428,
+  "winners": []
 }
