@@ -8,11 +8,14 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
     "cheerio": "^1.1.2",
     "express": "^4.19.2",
     "html2canvas": "^1.4.1",
     "node-fetch": "^2.7.0",
+    "postcss": "^8.5.6",
     "puppeteer": "^24.26.1",
+    "tailwindcss": "^4.1.16",
     "ws": "^8.18.3"
   }
 }
