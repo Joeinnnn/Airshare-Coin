@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer");
 const { WebSocket } = require("ws");
 
 // --------- CONFIG ---------
-const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/3URG3KGWCf6TgqKFkQoGDVfLjkoNLdN4LEnZH7gqpump";
+const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/FAhEE8gfkB63pHBEZhr1MKo6Vm5CtPoE4hmo23Supump";
 const REFRESH_MS = 2000; // poll every 2s
 // --------------------------
 

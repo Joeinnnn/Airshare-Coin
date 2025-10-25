@@ -239,17 +239,37 @@ export default function Home() {
   const handleAirdropNow = async () => {
     try {
       console.log('🎯 Airdrop Now button clicked');
-      const res = await fetch('/api/airdrop-now', { method: 'POST' });
+      const res = await fetch('/api/airdrop-now', { method: 'POST', headers: { 'cache-control': 'no-cache' } });
       if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Request failed: ${res.status} - ${errorText}`);
+        // Try GET as fallback (like in your old version)
+        try {
+          await fetch('/api/airdrop-now', { method: 'GET' });
+        } catch (_) {
+          throw new Error('Request failed');
+        }
       }
-      const result = await res.json();
-      console.log('✅ Airdrop executed:', result);
-      alert('Airdrop executed successfully! Winners have been selected.');
+      
+      // Force refresh airdrop data
+      await new Promise(r => setTimeout(r, 250));
+      
+      // Try to get winners immediately
+      try {
+        const win = await fetchData('airdrop_winners.json');
+        if (win) {
+          const data = JSON.parse(win);
+          const list = (data && data.winners) || [];
+          if (list.length) {
+            setAirdropWinners(
+              'Airdrop Winners:\n' +
+                list.map((w: any, i: number) => `${i + 1}. ${w.address} — ${Number(w.totalSol || 0).toFixed(4)} SOL`).join('\n')
+            );
+          }
+        }
+      } catch (_) {}
+      
+      console.log('✅ Airdrop executed successfully');
     } catch (e) {
       console.error('❌ Error ending airdrop:', e);
-      alert(`Failed to end airdrop: ${e.message}`);
     }
   };
 

@@ -18,7 +18,7 @@
     "eslint": "^8",
     "eslint-config-next": "^14.2.3",
     "html2canvas": "^1.4.1",
-    "next": "^14.2.3",
+    "next": "^16.0.0",
     "postcss": "^8",
     "puppeteer": "^22.10.0",
     "react": "^18",
