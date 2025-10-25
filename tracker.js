@@ -1,22 +1,24 @@
 const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer");
+const { WebSocket } = require("ws");
 
 // --------- CONFIG ---------
 const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/3URG3KGWCf6TgqKFkQoGDVfLjkoNLdN4LEnZH7gqpump";
 const REFRESH_MS = 2000; // poll every 2s
 // --------------------------
 
-const OUT_CAP = path.join(__dirname, "marketcap.txt");
-const OUT_TRADE = path.join(__dirname, "trades.txt");
-const OUT_TOP_BUYERS = path.join(__dirname, "topbuyers.txt");
-const OUT_COIN = path.join(__dirname, "coin.txt");
-const OUT_TXHASH = path.join(__dirname, "txhash.txt");
-const OUT_TOP_BUYERS_JSON = path.join(__dirname, "topbuyers.json");
-const OUT_AIRDROP_END = path.join(__dirname, "airdrop_end.txt");
-const OUT_AIRDROP_WIN_JSON = path.join(__dirname, "airdrop_winners.json");
-const OUT_AIRDROP_WIN_TXT = path.join(__dirname, "airdrop_winners.txt");
-const OUT_AIRDROP_NEXT_OVERRIDE = path.join(__dirname, "airdrop_next_override_min.txt");
+const DATA_DIR = path.join(__dirname, "data");
+const OUT_CAP = path.join(DATA_DIR, "marketcap.txt");
+const OUT_TRADE = path.join(DATA_DIR, "trades.txt");
+const OUT_TOP_BUYERS = path.join(DATA_DIR, "topbuyers.txt");
+const OUT_COIN = path.join(DATA_DIR, "coin.txt");
+const OUT_TXHASH = path.join(DATA_DIR, "txhash.txt");
+const OUT_TOP_BUYERS_JSON = path.join(DATA_DIR, "topbuyers.json");
+const OUT_AIRDROP_END = path.join(DATA_DIR, "airdrop_end.txt");
+const OUT_AIRDROP_WIN_JSON = path.join(DATA_DIR, "airdrop_winners.json");
+const OUT_AIRDROP_WIN_TXT = path.join(DATA_DIR, "airdrop_winners.txt");
+const OUT_AIRDROP_NEXT_OVERRIDE = path.join(DATA_DIR, "airdrop_next_override_min.txt");
 
 function asciiOnly(s) {
 	return (s || "").normalize("NFKD").replace(/[^\x20-\x7E]/g, "").trim();
@@ -70,10 +72,12 @@ function sleep(ms) {
 	await ensureTradesTab();
 
 	if (!fs.existsSync(OUT_CAP)) fs.writeFileSync(OUT_CAP, "Market Cap: N/A");
-	if (!fs.existsSync(OUT_TRADE)) fs.writeFileSync(OUT_TRADE, "");
-	if (!fs.existsSync(OUT_TOP_BUYERS)) fs.writeFileSync(OUT_TOP_BUYERS, "");
-	if (!fs.existsSync(OUT_TXHASH)) fs.writeFileSync(OUT_TXHASH, "");
+	if (!fs.existsSync(OUT_TRADE)) fs.writeFileSync(OUT_TRADE, "Waiting for trades...");
+	if (!fs.existsSync(OUT_TOP_BUYERS)) fs.writeFileSync(OUT_TOP_BUYERS, "No buyers yet...");
+	if (!fs.existsSync(OUT_TXHASH)) fs.writeFileSync(OUT_TXHASH, "No transactions yet...");
   if (!fs.existsSync(OUT_TOP_BUYERS_JSON)) fs.writeFileSync(OUT_TOP_BUYERS_JSON, "[]");
+
+
   if (!fs.existsSync(OUT_AIRDROP_END)) {
     const envEnd = Number(process.env.AIRDROP_END_EPOCH_MS || 0);
     const durationMin = Number(process.env.AIRDROP_DURATION_MIN || 0);
@@ -160,7 +164,6 @@ function sleep(ms) {
   }, 2000);
 
 	// ----- Real-time trades via PumpPortal WebSocket (exact API example) -----
-	const { WebSocket } = require("ws");
 	if (coinAddress) {
 		function connectWs() {
 			const ws = new WebSocket("wss://pumpportal.fun/api/data");
@@ -187,8 +190,11 @@ function sleep(ms) {
 			
 			ws.on("message", (data) => {
 				const msg = JSON.parse(data);
-				// Light debug
-				if (msg.txType || msg.message) console.log("📡 WS:", msg.txType || msg.message, msg.mint || "");
+				// Enhanced debug
+				if (msg.txType || msg.message) {
+					console.log("📡 WS:", msg.txType || msg.message, msg.mint || "");
+					console.log("📡 Full message:", JSON.stringify(msg, null, 2));
+				}
 				
 				// Handle possible migration event to auto-switch mint
 				try {
@@ -206,6 +212,7 @@ function sleep(ms) {
 							// Reset in-memory state
 							lastTradeLine = "";
 							buyerStats.clear();
+							addressStats.clear(); // Clear addressStats as well
 							// Reconnect to WS with new mint
 							try { ws.close(); } catch (_) {}
 							setTimeout(connectWs, 500);
