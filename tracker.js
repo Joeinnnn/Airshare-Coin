@@ -3,7 +3,7 @@ const path = require("path");
 const puppeteer = require("puppeteer");
 
 // --------- CONFIG ---------
-const COIN_URL = process.env.COIN_URL || "";
+const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/3URG3KGWCf6TgqKFkQoGDVfLjkoNLdN4LEnZH7gqpump";
 const REFRESH_MS = 2000; // poll every 2s
 // --------------------------
 
@@ -16,6 +16,7 @@ const OUT_TOP_BUYERS_JSON = path.join(__dirname, "topbuyers.json");
 const OUT_AIRDROP_END = path.join(__dirname, "airdrop_end.txt");
 const OUT_AIRDROP_WIN_JSON = path.join(__dirname, "airdrop_winners.json");
 const OUT_AIRDROP_WIN_TXT = path.join(__dirname, "airdrop_winners.txt");
+const OUT_AIRDROP_NEXT_OVERRIDE = path.join(__dirname, "airdrop_next_override_min.txt");
 
 function asciiOnly(s) {
 	return (s || "").normalize("NFKD").replace(/[^\x20-\x7E]/g, "").trim();
@@ -76,8 +77,8 @@ function sleep(ms) {
   if (!fs.existsSync(OUT_AIRDROP_END)) {
     const envEnd = Number(process.env.AIRDROP_END_EPOCH_MS || 0);
     const durationMin = Number(process.env.AIRDROP_DURATION_MIN || 0);
-    // Default 30 minutes if not configured
-    const defaultDurationMs = 30 * 60_000;
+    // Default 5 minutes if not configured
+    const defaultDurationMs = 5 * 60_000;
     const chosenDurationMs = durationMin > 0 ? durationMin * 60_000 : defaultDurationMs;
     const endMs = envEnd > Date.now() ? envEnd : (Date.now() + chosenDurationMs);
     fs.writeFileSync(OUT_AIRDROP_END, String(endMs), "utf8");
@@ -136,10 +137,21 @@ function sleep(ms) {
     winnersWritten = true;
     processedEndMs = endMs;
 
-    // Immediately schedule the next round end in 30 minutes (or env override)
-    const nextDurationMin = Number(process.env.AIRDROP_DURATION_MIN || 30);
+    // Immediately schedule the next round end (manual override > env > default)
+    let nextDurationMin = Number(process.env.AIRDROP_DURATION_MIN || 5);
+    try {
+      if (fs.existsSync(OUT_AIRDROP_NEXT_OVERRIDE)) {
+        const ov = parseInt((fs.readFileSync(OUT_AIRDROP_NEXT_OVERRIDE, "utf8").trim() || ""), 10);
+        if (isFinite(ov) && ov >= 1) nextDurationMin = ov;
+      }
+    } catch (_) {}
     const nextEnd = Date.now() + Math.max(1, nextDurationMin) * 60_000;
-    try { fs.writeFileSync(OUT_AIRDROP_END, String(nextEnd), "utf8"); lastSeenEndMs = nextEnd; winnersWritten = false; } catch (_) {}
+    try {
+      fs.writeFileSync(OUT_AIRDROP_END, String(nextEnd), "utf8");
+      // clear one-time override if any
+      try { if (fs.existsSync(OUT_AIRDROP_NEXT_OVERRIDE)) fs.unlinkSync(OUT_AIRDROP_NEXT_OVERRIDE); } catch(_) {}
+      lastSeenEndMs = nextEnd; winnersWritten = false;
+    } catch (_) {}
   }
 
   // Periodic check so winners are selected even if no new trades arrive

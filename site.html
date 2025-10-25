@@ -4,19 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Live Pump.fun Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b0f14;
-      --fg: #e8f0f8;
-      --panel: #0e1621;
+      --bg: #0e1116;
+      --fg: #e6edf3;
+      --panel: #0b1220;
       --border: #1f2a3a;
-      --muted: #9fb2c8;
-      --brand: #9fc3ff;
-      --accent: #1b67ff;
-      --accent2: #00c2ff;
-      --accent-gradient: none;
-      --header-gradient: transparent;
-      --success: #00ffbd;
+      --muted: #93a4b7;
+      --brand: #58a6ff;   /* professional blue */
+      --accent: #238636;  /* success green */
+      --accent2: #58a6ff; /* secondary */
+      --header-gradient: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.07));
+      --success: #2ea043;
+      --scroll-track: #0b1220;
+      --scroll-thumb: #203047;
+      --card-radius: 12px;
     }
     body[data-theme="light"] {
       --bg: #f7f9fc;
@@ -27,127 +32,151 @@
       --brand: #2b63ff;
       --success: #0cb37a;
     }
-    body { margin:0; background:radial-gradient(1200px 600px at 50% -200px, #13304a44, transparent), var(--bg); color:var(--fg); font-family: system-ui, Arial, sans-serif; }
-    .wrap { max-width: 1040px; margin: 0 auto; padding: 22px; }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--header-gradient); border:1px solid var(--border); border-radius:14px; padding:10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,.25) inset, 0 6px 20px rgba(0,0,0,.25); }
+    body { margin:0; background: var(--bg); color:var(--fg); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    /* CRT scanlines */
+    body::after { content:""; position:fixed; inset:0; pointer-events:none; background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.04), rgba(255,255,255,.04) 1px, transparent 1px, transparent 3px);
+      mix-blend-mode: overlay; opacity:.08; }
+    /* Neon grid */
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; background:
+      radial-gradient(1200px 800px at 50% -20%, rgba(34,197,94,0.08), transparent),
+      radial-gradient(1200px 800px at 50% 120%, rgba(88,166,255,0.05), transparent),
+      repeating-linear-gradient(0deg, transparent 0 22px, rgba(34,197,94,0.07) 23px),
+      repeating-linear-gradient(90deg, transparent 0 22px, rgba(34,197,94,0.07) 23px);
+      animation: gridMove 22s linear infinite; opacity:.35; }
+    @keyframes gridMove { from { background-position: 0 0, 0 0, 0 0, 0 0; } to { background-position: 0 0, 0 0, 0 44px, 44px 0; } }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:transparent; border:0; border-radius: var(--card-radius); padding:8px 0; }
     .brand { font-weight:800; font-size:20px; color:var(--brand); letter-spacing:.2px; }
     .mint { font-size:13px; color:var(--muted); word-break:break-all; }
     .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .btn { padding:9px 14px; background:var(--accent); background-image: var(--accent-gradient); color:#fff; border:0; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-block; transition: transform .06s ease, filter .15s ease, opacity .2s; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+    .btn { padding:8px 12px; background:var(--accent); color:#fff; border:1px solid #1f6f3a; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; transition: filter .15s ease, opacity .2s; box-shadow: 0 0 0 2px #0a141f inset, 0 0 12px rgba(34,197,94,.15); font-family: 'Press Start 2P', system-ui; font-size:11px; letter-spacing:.08em; }
     .btn:hover { filter: brightness(1.05); }
     .btn:active { transform: translateY(1px); }
     .btn:disabled { opacity:.6; cursor:default; }
-    .hero { margin:18px 0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-    .cap { font-size:28px; font-weight:800; }
-    .chip { display:inline-block; padding:6px 12px; border-radius:999px; background:linear-gradient(90deg, #0f1a28, #0e1521); color:var(--brand); border:1px solid var(--border); font-size:14px; box-shadow: 0 4px 12px rgba(0,0,0,.25) inset; }
-    .latest { margin:12px 0; padding:14px; border:1px solid var(--border); border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)), var(--panel); display:flex; align-items:center; gap:12px; min-height:108px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .hero { margin:18px 0; background:var(--panel); border:1px solid var(--border); border-radius: var(--card-radius); padding:12px; position:relative; overflow:hidden; }
+    .hero:before { content:""; position:absolute; inset:0; background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px),
+      radial-gradient(800px 200px at 30% -20%, rgba(34,197,94,0.09), transparent),
+      radial-gradient(800px 200px at 70% 120%, rgba(34,197,94,0.06), transparent);
+      pointer-events:none; }
+    .hud { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; position:relative; z-index:1; }
+    .hud-card { border:1px solid var(--border); border-radius:10px; background:#0a141f; padding:10px 12px; box-shadow: 0 0 0 1px #183046 inset, 0 0 18px rgba(34,197,94,.08); }
+    .hud-card .label { font-family: 'Press Start 2P', system-ui; font-size:10px; color:#7aa6ff; letter-spacing:.15em; text-transform:uppercase; opacity:.9; }
+    .hud-card .value { font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:26px; color:#8fffba; text-shadow: 0 0 6px rgba(34,197,94,.6), 0 0 18px rgba(34,197,94,.2); margin-top:6px; }
+    .cap { font-size:30px; font-weight:900; font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:0; border-radius:0; background:transparent; border:0; color:#8fffba; letter-spacing:1px; text-shadow: 0 0 6px rgba(34,197,94,.6), 0 0 18px rgba(34,197,94,.2); transition: transform .2s ease, text-shadow .2s ease; }
+    .cap.cap-animate { transform: translateY(-1px); text-shadow: 0 0 10px rgba(34,197,94,.8), 0 0 26px rgba(34,197,94,.35); }
+    .chip { display:inline-block; padding:4px 8px; border-radius:6px; background:#0a141f; color:#7aa6ff; border:1px solid #183046; font-size:12px; font-family: 'Press Start 2P', system-ui; letter-spacing:.1em; }
+    .latest { margin:12px 0; padding:14px; border:1px solid var(--border); border-radius: var(--card-radius); background:var(--panel); display:flex; align-items:center; gap:12px; min-height:108px; position:relative; }
+    .latest.pulse { animation: latestPulse 900ms ease-out; }
+    @keyframes latestPulse { 0% { box-shadow: 0 0 0 rgba(34,197,94,0.0); border-color: var(--border);} 30% { box-shadow: 0 0 24px rgba(34,197,94,0.35); border-color: #2ea043;} 100% { box-shadow: 0 0 0 rgba(34,197,94,0.0); border-color: var(--border);} }
     .notice { font-size:12px; color:var(--muted); margin-top:6px; }
     .latest .text { font-size:22px; color:var(--success); font-weight:800; }
-    .cols { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .cols { display:grid; grid-template-columns: 1fr 1fr; gap:16px; align-items:start; }
     @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
-    .panel { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)), var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow: 0 10px 28px rgba(0,0,0,.3); }
-    .panel h3 { margin:0; padding:12px 14px; font-size:16px; color:var(--brand); border-bottom:1px solid var(--border); letter-spacing:.3px; }
-    .panel .body { padding:12px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:15px; line-height:1.5; white-space:pre-wrap; }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius: var(--card-radius); overflow:hidden; }
+    .panel h3 { margin:0; padding:10px 12px; font-size:12px; color:#7aa6ff; border-bottom:1px solid var(--border); text-transform: uppercase; letter-spacing:.18em; font-family: 'Press Start 2P', system-ui; }
+    .panel .body { padding:12px 14px; font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:15px; line-height:1.5; white-space:pre-wrap; }
+    .panel .body.scroll { max-height: 420px; overflow: auto; }
+    .panel .body.scroll { max-height: 420px; overflow: auto; }
     .list { list-style:none; margin:0; padding:0; }
-    .list li { padding:9px 12px; border-bottom:1px dashed var(--border); }
+    .list li { padding:9px 12px; border-bottom:1px solid var(--border); font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#b8d7c6; letter-spacing:.02em; }
+    .list li:hover { background:#0e1520; }
     .small { font-size:12px; opacity:.85; }
     a { color: var(--brand); }
 
-    /* right-side process sidebar */
-    /* Position relative to the page center so it sits beside the centered content */
-    .sidebar { position: fixed; left: calc(50% + 540px); top: 88px; width: 260px; z-index: 50; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)), var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow: 0 10px 28px rgba(0,0,0,.3); }
-    .sidebar h4 { margin:0; padding:10px 12px; font-size:14px; color: var(--brand); border-bottom:1px solid var(--border); letter-spacing:.3px; }
-    .sidebar .steps { padding:10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; color: var(--fg); }
-    .sidebar .step { padding:6px 0; display:flex; align-items:center; gap:8px; }
-    .sidebar .step:before { content: ">"; color: var(--accent2); font-weight:700; }
-    @media (max-width: 1199px) { .sidebar { display:none; } }
+    /* Scrollbar: match page, hide arrows */
+    * { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) var(--scroll-track); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--scroll-track); }
+    ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 8px; border: 2px solid var(--scroll-track); }
+    ::-webkit-scrollbar-button { width: 0; height: 0; display: none; }
+
+    /* airdrop visual effects */
+    .airdrop-flash { animation: airdropFlash 800ms ease-out; }
+    @keyframes airdropFlash { 0% { box-shadow: 0 0 0 rgba(88,166,255,0); border-color: var(--border);} 50% { box-shadow: 0 0 26px rgba(88,166,255,.35); border-color: #58a6ff;} 100% { box-shadow: 0 0 0 rgba(88,166,255,0); border-color: var(--border);} }
+    .win-animate { animation: winGlow 1200ms ease-out; }
+    @keyframes winGlow { 0% { box-shadow: 0 0 0 rgba(88,166,255,0); } 40% { box-shadow: 0 0 26px rgba(88,166,255,.35); } 100% { box-shadow: 0 0 0 rgba(88,166,255,0); } }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div style="display:flex; align-items:center; gap:10px; height:48px;">
-        <img src="Leaderboard-removebg-preview.png" alt="Logo" style="height:56px; width:auto; object-fit:contain; margin-top:2px; filter: drop-shadow(0 0 2px rgba(0,0,0,.25));" />
-        <div class="brand" style="display:none;">Live Pump.fun Tracker</div>
-        <div id="mint" class="mint"></div>
-      </div>
       <div class="controls">
         <a id="pumpLink" class="btn" href="https://pump.fun" target="_blank" rel="noopener">Open on Pump.fun</a>
         <a id="xBtn" class="btn" href="https://x.com/i/communities/1970111571679715570" target="_blank" rel="noopener">X Community</a>
         <button id="shareTopBtn" class="btn" type="button">Share Top Buyers (PNG)</button>
       </div>
+      <div class="mint" id="mint" style="margin-left:auto;">Mint: —</div>
     </header>
 
     <section class="hero">
-      <div class="cap" id="cap">Market Cap: N/A</div>
-      <div class="chip" id="tradesCount">Trades: 0</div>
-      <div class="chip" id="airdropCountdown">Airdrop: —</div>
+      <div class="hud">
+        <div class="hud-card">
+          <div class="label">Market Cap</div>
+          <div class="value" id="cap">Market Cap: N/A</div>
+        </div>
+        <div class="hud-card">
+          <div class="label">Trades</div>
+          <div class="value" id="tradesCount">0</div>
+        </div>
+        <div class="hud-card">
+          <div class="label">Airdrop</div>
+          <div class="value" id="airdropCountdown">—</div>
+        </div>
+      </div>
     </section>
 
     <section class="latest" id="latest" style="position:relative;">
       <div class="text" id="latestText">Waiting for buys…</div>
-      <img id="gif" src="" alt="gif" style="width:140px; height:88px; object-fit:contain; border-radius:8px; background: var(--bg); visibility:hidden;" />
-      <audio id="sfx" preload="auto">
-        <source src="kaching.mp3" type="audio/mpeg" />
-      </audio>
-      <audio id="whaleSfx" preload="auto">
-        <source src="kaching.mp3" type="audio/mpeg" />
-      </audio>
       <canvas id="confetti" style="position:absolute; inset:0; pointer-events:none;"></canvas>
     </section>
+    <!-- fullscreen FX canvas for bursts -->
+    <canvas id="fxCanvas" style="position:fixed; inset:0; pointer-events:none; z-index:5;"></canvas>
     <div class="notice">* GIF popup shows only buys ≥ 0.1 SOL. The page may briefly switch views while syncing.</div>
     <div class="notice">* Only buyers with ≥0.1 SOL buys will show your username and GIF.</div>
 
     <section class="cols">
       <div class="panel">
+        <h3>Leaderboard</h3>
+        <div class="body scroll" id="topbuyers"></div>
+        <div class="small" id="topTraderLine" style="padding:8px 12px;">Top Trader: —</div>
+      </div>
+      <div class="panel">
+        <h3>Airdrop</h3>
+        <div class="body">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <div id="airdropStatus">Airdrop: —</div>
+            <div class="airdrop-actions">
+              <button id="airdropNowBtn" class="btn" type="button">Airdrop Now</button>
+            </div>
+          </div>
+          <div class="small" style="margin:6px 0 10px 0;">Ends when countdown hits 0. You can also end now.</div>
+          <div id="winners" class="scroll" style="margin-top:10px; white-space:pre-wrap;"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cols" style="margin-top:16px;">
+      <div class="panel">
         <h3>Recent Buys</h3>
         <ul class="list" id="recent"></ul>
       </div>
       <div class="panel">
-        <h3>Top Buyers</h3>
-        <div class="body" id="topbuyers"></div>
-        <div class="small" id="topTraderLine" style="padding:8px 12px;">Top Trader: —</div>
-      </div>
-    </section>
-
-    <section class="panel" style="margin-top:16px;">
-      <h3>Latest Transaction</h3>
-      <div class="body">
-        <a id="txLink" href="#" target="_blank" rel="noopener" style="word-break:break-all; color:var(--brand); text-decoration:underline;">—</a>
-        <div class="small">Most recent buy signature. Click to view on Solscan.</div>
-      </div>
-    </section>
-
-    <section class="panel" style="margin-top:16px;">
-      <h3>Airdrop</h3>
-      <div class="body">
-        <div id="airdropStatus">Airdrop: —</div>
-        <div class="small" style="margin:6px 0 10px 0;">Ends when countdown hits 0. You can also end now.</div>
-        <button id="airdropNowBtn" class="btn" type="button">Airdrop Now</button>
-        <div id="winners" style="margin-top:10px; white-space:pre-wrap;"></div>
+        <h3>Latest Transaction</h3>
+        <div class="body">
+          <a id="txLink" href="#" target="_blank" rel="noopener" style="word-break:break-all; color:var(--brand); text-decoration:underline;">—</a>
+          <div class="small">Most recent buy signature. Click to view on Solscan.</div>
+        </div>
       </div>
     </section>
 
     
   </div>
 
-  <!-- right-side process sidebar -->
-  <aside class="sidebar" aria-label="How it works">
-    <h4>Process</h4>
-    <div class="steps">
-      <div class="step">Track live trades from Pump.fun</div>
-      <div class="step">Aggregate top volume by wallet</div>
-      <div class="step">Display on dashboard</div>
-      <div class="step">End round (30m or Airdrop Now)</div>
-      <div class="step">Select winners & overwrite list</div>
-      <div class="step">Distribute creator awards to winners</div>
-    </div>
-  </aside>
+  <!-- Process steps moved out for a cleaner look -->
 
-  <!-- floating accent picker bottom-left -->
-  <div id="pickerDock" style="position:fixed; left:12px; bottom:12px; z-index:9999; display:flex; align-items:center; gap:8px;">
-    <input id="accentPicker" type="color" value="#1b67ff" title="Accent" style="width:42px; height:42px; padding:0; border:none; background:transparent; cursor:pointer;" />
-  </div>
+  
 
   <script>
     // globals must be defined before use to avoid TDZ errors
@@ -160,6 +189,7 @@
     window.__lastShownLine = '';
     // Allow external data root override: /?dataRoot=https://data.example.com
     const DATA_ROOT = new URLSearchParams(location.search).get('dataRoot') || '';
+    const SOUND_ENABLED = false; // disable kaching sound
     // html2canvas for PNG export
     (function(){
       const s = document.createElement('script');
@@ -167,6 +197,7 @@
       s.defer = true; document.head.appendChild(s);
     })();
     const wsUrl = 'wss://pumpportal.fun/api/data';
+    let ws = null; // declare persistent WS handle
     let currentMint = '';
     // Aggregate by wallet address; store display name per address
     const buyerStats = new Map(); // address -> { name, count, total }
@@ -256,7 +287,7 @@
         s.count += 1; s.total += Number(e.amount)||0; buyerStats.set(addr, s);
         trades += 1;
       }
-      document.getElementById('tradesCount').textContent = 'Trades: ' + trades;
+      document.getElementById('tradesCount').textContent = String(trades);
       updateTop();
     }
 
@@ -272,6 +303,7 @@
 
     function connect(mint) {
       if (ws) try { ws.close(); } catch(_) {}
+      try { if (ws) ws.close(); } catch(_) {}
       ws = new WebSocket(wsUrl);
       ws.addEventListener('open', () => {
         // subscribe to both variants (with and without trailing 'pump')
@@ -306,21 +338,22 @@
           const isWhale = amount >= 1; // threshold for whale/confetti
           const line = `${isWhale ? '🐳 ' : ''}${who} Bought ${amount} SOL`;
           trades += 1;
-          document.getElementById('tradesCount').textContent = 'Trades: ' + trades;
+          document.getElementById('tradesCount').textContent = String(trades);
           // GIF popup only for buys >= 0.1 SOL and skip duplicate banner
           const GIF_MIN_SOL = 0.1;
           if (amount >= GIF_MIN_SOL && window.__lastShownLine !== line) {
             document.getElementById('latestText').textContent = line;
-            const gif = document.getElementById('gif');
-            const gifs = ["GIF1.gif","GIF2.gif","GIF3.gif","GIF4.gif"];
-            gif.style.visibility = 'visible';
-            // cache-bust to retrigger animation and keep fixed size
-            gif.src = gifs[Math.floor(Math.random()*gifs.length)] + '?t=' + Date.now();
-            try { (isWhale ? document.getElementById('whaleSfx') : document.getElementById('sfx')).currentTime = 0; (isWhale ? document.getElementById('whaleSfx') : document.getElementById('sfx')).play(); } catch(_) {}
+            // effect: pulse outline + confetti for whales
+            const latest = document.getElementById('latest');
+            latest.classList.remove('pulse');
+            void latest.offsetWidth; // restart animation
+            latest.classList.add('pulse');
             if (isWhale) triggerConfetti();
+            // particle burst
+            try { particleBurst(); } catch(_) {}
             window.__lastShownLine = line;
-            // after 3s, keep the bar but return to standby
-            setTimeout(()=>{ const g=document.getElementById('gif'); g.style.visibility='hidden'; g.src=''; document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
+            // after 3s, return to standby text
+            setTimeout(()=>{ document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
           }
           addRecent(line);
           const s = buyerStats.get(addr) || { name: who, count:0, total:0 };
@@ -349,7 +382,7 @@
         try { Object.keys(localStorage).forEach(k => { if (k.startsWith('pf_history_') || k.startsWith('pf_seen_')) localStorage.removeItem(k); }); } catch {}
         document.getElementById('recent').innerHTML = '';
         document.getElementById('topbuyers').textContent = '';
-        document.getElementById('tradesCount').textContent = 'Trades: 0';
+        document.getElementById('tradesCount').textContent = '0';
         seenLines.clear(); buyerStats.clear(); trades = 0; lastPolledTrade = '';
       }
       localStorage.setItem('pf_current_mint', mint);
@@ -363,14 +396,8 @@
     (function boot(){
       // force dark theme and clear old toggle state
       try { document.body.removeAttribute('data-theme'); localStorage.removeItem('pf_theme'); } catch {}
-      // apply saved accent
-      try {
-        const c1 = localStorage.getItem('pf_color1');
-        if (c1) {
-          document.getElementById('accentPicker').value = c1;
-          applyAccent(c1);
-        }
-      } catch {}
+      // fixed theme — no dynamic accent
+      try { localStorage.removeItem('pf_color1'); } catch {}
 
       fetchText('coin.txt')
         .then(txt => (txt || '').trim())
@@ -385,27 +412,7 @@
       }, 5000);
     })();
 
-    // real-time accent picker (bottom-left)
-    const accentPicker = document.getElementById('accentPicker');
-    function generateSiblingColor(hex) {
-      // simple lighten by 25%
-      let c = hex.replace('#','');
-      if (c.length === 3) c = c.split('').map(x=>x+x).join('');
-      const r = Math.min(255, Math.round(parseInt(c.substr(0,2),16) * 1.25));
-      const g = Math.min(255, Math.round(parseInt(c.substr(2,2),16) * 1.25));
-      const b = Math.min(255, Math.round(parseInt(c.substr(4,2),16) * 1.25));
-      const toHex = (n)=> ('0'+n.toString(16)).slice(-2);
-      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-    }
-    function hexToRgb(h){
-      let c = h.replace('#','');
-      if (c.length===3) c=c.split('').map(x=>x+x).join('');
-      return { r: parseInt(c.substr(0,2),16), g: parseInt(c.substr(2,2),16), b: parseInt(c.substr(4,2),16) };
-    }
-    function rgbToHex({r,g,b}){ const to=(n)=>('0'+Math.max(0,Math.min(255,Math.round(n))).toString(16)).slice(-2); return `#${to(r)}${to(g)}${to(b)}`; }
-    function mix(a,b,t){ // a and b are hex colors, t in [0,1]
-      const A=hexToRgb(a), B=hexToRgb(b); return rgbToHex({ r: A.r*(1-t)+B.r*t, g: A.g*(1-t)+B.g*t, b: A.b*(1-t)+B.b*t });
-    }
+    // removed accent picker; fixed palette
     function triggerConfetti(){
       const canvas = document.getElementById('confetti');
       const ctx = canvas.getContext('2d');
@@ -426,6 +433,34 @@
         t+=16; if (t<maxT) requestAnimationFrame(step); else ctx.clearRect(0,0,canvas.width,canvas.height);
       }
       requestAnimationFrame(step);
+    }
+    function particleBurst(){
+      const canvas = document.getElementById('fxCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const { innerWidth: W, innerHeight: H } = window;
+      canvas.width = W; canvas.height = H;
+      const cx = W * 0.5, cy = H * 0.25;
+      const parts = Array.from({length: 80}).map(()=>({
+        x: cx, y: cy,
+        vx: (Math.random()-0.5) * 6,
+        vy: (Math.random()-0.5) * 4 - 2,
+        life: 700 + Math.random()*400,
+        size: 2 + Math.random()*3,
+        hue: Math.random() < 0.5 ? 140 : 210
+      }));
+      let start = performance.now();
+      function frame(t){
+        const dt = 16; // approx
+        ctx.clearRect(0,0,W,H);
+        parts.forEach(p=>{
+          p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= dt;
+          ctx.fillStyle = `hsla(${p.hue}, 80%, 60%, ${Math.max(0, p.life/1000)})`;
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+        });
+        if (performance.now() - start < 900) requestAnimationFrame(frame); else ctx.clearRect(0,0,W,H);
+      }
+      requestAnimationFrame(frame);
     }
     function applyAccent(c1) {
       const c2 = generateSiblingColor(c1);
@@ -482,7 +517,7 @@
         alert('Export failed.');
       }
     });
-    accentPicker.addEventListener('input', (e)=> applyAccent(e.target.value));
+    try { if (accentPicker) accentPicker.addEventListener('input', (e)=> applyAccent(e.target.value)); } catch(_) {}
 
     // --- Fallback polling for market cap (and optional text mirrors) ---
     async function fetchText(file){
@@ -501,7 +536,9 @@
         const cap = (await fetchText('marketcap.txt')).trim();
         if (cap) {
           lastCap = cap;
-          document.getElementById('cap').textContent = cap;
+          const capEl = document.getElementById('cap');
+          capEl.textContent = cap;
+          capEl.classList.remove('cap-animate'); void capEl.offsetWidth; capEl.classList.add('cap-animate');
         } else if (lastCap) {
           document.getElementById('cap').textContent = lastCap;
         } else {
@@ -544,13 +581,13 @@
             const line = `${who} Bought ${amt} SOL`;
             if (amt >= GIF_MIN_SOL && window.__lastShownLine !== line) {
               document.getElementById('latestText').textContent = line;
-              const gif = document.getElementById('gif');
-              const gifs = ["GIF1.gif","GIF2.gif","GIF3.gif","GIF4.gif"];
-              gif.style.visibility = 'visible';
-              gif.src = gifs[Math.floor(Math.random()*gifs.length)] + '?t=' + Date.now();
-              try { document.getElementById('sfx').currentTime = 0; document.getElementById('sfx').play(); } catch(_) {}
+            const latest = document.getElementById('latest');
+            latest.classList.remove('pulse');
+            void latest.offsetWidth;
+            latest.classList.add('pulse');
+            try { particleBurst(); } catch(_) {}
               window.__lastShownLine = line;
-              setTimeout(()=>{ const g=document.getElementById('gif'); g.style.visibility='hidden'; g.src=''; document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
+            setTimeout(()=>{ document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
             }
           }
         }
@@ -611,6 +648,9 @@
                 const list = (data && data.winners) || [];
                 if (list.length) {
                   winnersEl.textContent = 'Airdrop Winners:\n' + list.map((w,i)=>`${i+1}. ${w.address} — ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n');
+                  // winners effect
+                  const airdropPanel = winnersEl.closest('.panel');
+                  if (airdropPanel) { airdropPanel.classList.remove('win-animate'); void airdropPanel.offsetWidth; airdropPanel.classList.add('win-animate'); }
                 }
               }
             } catch(_) {}
@@ -658,6 +698,11 @@
         } finally {
           await new Promise(r=>setTimeout(r, 250));
           await forceAirdropRefresh();
+          // flash the airdrop panel for feedback
+          try {
+            const panel = btn.closest('.panel');
+            panel.classList.remove('airdrop-flash'); void panel.offsetWidth; panel.classList.add('airdrop-flash');
+          } catch(_) {}
           setTimeout(()=>{ btn.disabled = false; btn.textContent = original; }, 800);
         }
       });

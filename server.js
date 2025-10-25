@@ -35,9 +35,9 @@ app.post('/airdrop/now', (req, res) => {
       const winJson = { end: Date.now(), winners };
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.json'), JSON.stringify(winJson, null, 2), 'utf8');
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.txt'), winners.map(w => `${w.address} ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n'), 'utf8');
-      // Schedule next round in 30 minutes by default (env override)
-      const nextDurationMin = Number(process.env.AIRDROP_DURATION_MIN || 30);
-      const nextEnd = Date.now() + Math.max(1, nextDurationMin) * 60_000;
+      // Schedule next round for 5 minutes specifically (one-time override)
+      try { fs.writeFileSync(path.join(__dirname, 'airdrop_next_override_min.txt'), String(5), 'utf8'); } catch(_) {}
+      const nextEnd = Date.now() + 5 * 60_000;
       fs.writeFileSync(endFile, String(nextEnd), 'utf8');
     } catch (_) {}
     res.json({ ok: true, message: 'Airdrop executed' });
@@ -59,8 +59,8 @@ app.get('/airdrop/now', (req, res) => {
       const winJson = { end: Date.now(), winners };
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.json'), JSON.stringify(winJson, null, 2), 'utf8');
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.txt'), winners.map(w => `${w.address} ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n'), 'utf8');
-      const nextDurationMin = Number(process.env.AIRDROP_DURATION_MIN || 30);
-      const nextEnd = Date.now() + Math.max(1, nextDurationMin) * 60_000;
+      try { fs.writeFileSync(path.join(__dirname, 'airdrop_next_override_min.txt'), String(5), 'utf8'); } catch(_) {}
+      const nextEnd = Date.now() + 5 * 60_000;
       fs.writeFileSync(endFile, String(nextEnd), 'utf8');
     } catch (_) {}
     res.type('application/json').send(JSON.stringify({ ok: true, message: 'Airdrop executed' }));
