@@ -238,11 +238,18 @@ export default function Home() {
 
   const handleAirdropNow = async () => {
     try {
+      console.log('🎯 Airdrop Now button clicked');
       const res = await fetch('/api/airdrop-now', { method: 'POST' });
-      if (!res.ok) throw new Error('Request failed');
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Request failed: ${res.status} - ${errorText}`);
+      }
+      const result = await res.json();
+      console.log('✅ Airdrop executed:', result);
+      alert('Airdrop executed successfully! Winners have been selected.');
     } catch (e) {
-      console.error('Error ending airdrop:', e);
-      alert('Failed to end airdrop.');
+      console.error('❌ Error ending airdrop:', e);
+      alert(`Failed to end airdrop: ${e.message}`);
     }
   };
 

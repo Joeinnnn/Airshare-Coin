@@ -3,8 +3,8 @@ import React from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Live Pump.fun Tracker",
-  description: "Live tracker for Pump.fun coins",
+  title: "Airshare",
+  description: "Live tracker for Airshare",
 };
 
 export default function RootLayout({

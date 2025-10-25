@@ -2,13 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
-const gifs = ["GIF1.gif", "GIF2.gif", "GIF3.gif", "GIF4.gif"];
-
 export default function Overlay() {
   const [tradeText, setTradeText] = useState("");
-  const [gifSrc, setGifSrc] = useState("");
   const [isVisible, setIsVisible] = useState(false);
-  const sfxRef = useRef<HTMLAudioElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -23,19 +19,11 @@ export default function Overlay() {
         if (trade && trade !== last) {
           last = trade;
           setTradeText(trade);
-          const randomGif = gifs[Math.floor(Math.random() * gifs.length)];
-          setGifSrc(`/gifs/${randomGif}?t=${Date.now()}`);
-
-          if (sfxRef.current) {
-            sfxRef.current.currentTime = 0;
-            sfxRef.current.play().catch(e => console.error("Error playing audio:", e));
-          }
 
           setIsVisible(true);
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
           timeoutRef.current = setTimeout(() => {
             setIsVisible(false);
-            setTimeout(() => { setGifSrc(""); }, 250); // Hide gif after fade out
           }, 3000);
         }
       } catch (e) {
@@ -49,11 +37,7 @@ export default function Overlay() {
 
   return (
     <div className={`popup ${isVisible ? 'show' : 'hide'}`} style={{ display: isVisible ? 'block' : 'none' }}>
-      <img id="gif" className="gif" src={gifSrc} alt="celebration" style={{ display: gifSrc ? 'block' : 'none' }} />
       <div id="trade" className="trade-text">{tradeText}</div>
-      <audio id="sfx" preload="auto" ref={sfxRef}>
-        <source src="/kaching.mp3" type="audio/mpeg" />
-      </audio>
     </div>
   );
 }

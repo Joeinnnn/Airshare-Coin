@@ -135,7 +135,12 @@ function sleep(ms) {
     const ranked = Array.from(addressStats.entries())
       .map(([addr, s]) => ({ address: addr, name: s.name, count: s.count, totalSol: s.totalSol }))
       .sort((a, b) => b.totalSol - a.totalSol);
-    const winners = ranked.slice(0, topN);
+    
+    // Get top 3 and randomly select from them
+    const top3 = ranked.slice(0, 3);
+    const numWinners = Math.min(3, top3.length);
+    const shuffled = [...top3].sort(() => Math.random() - 0.5);
+    const winners = shuffled.slice(0, numWinners);
     try { fs.writeFileSync(OUT_AIRDROP_WIN_JSON, JSON.stringify({ end: endMs, winners }, null, 2), "utf8"); } catch (_) {}
     try { fs.writeFileSync(OUT_AIRDROP_WIN_TXT, winners.map(w => `${w.address} ${w.totalSol.toFixed(4)} SOL`).join("\n"), "utf8"); } catch (_) {}
     winnersWritten = true;
