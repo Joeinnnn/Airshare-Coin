@@ -1,4 +1,4 @@
-# 🚀 Soldrop Coin Tracker - Next.js Edition
+# 🚀 Airshare Coin Tracker - Next.js Edition
 
 A modern, real-time Pump.fun coin tracker built with Next.js, featuring a beautiful dark purple theme and live data integration.
 
