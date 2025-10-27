@@ -1,0 +1,27 @@
+{
+  "name": "penguin-cap-tracker",
+  "version": "1.0.0",
+  "description": "A cryptocurrency tracker for pump.fun coins with airdrop functionality",
+  "main": "tracker.js",
+  "scripts": {
+    "start": "node tracker.js",
+    "build": "echo 'No build step required for Node.js project'",
+    "dev": "node tracker.js"
+  },
+  "keywords": [
+    "cryptocurrency",
+    "tracker",
+    "pump.fun",
+    "airdrop",
+    "solana"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "ws": "^8.14.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
