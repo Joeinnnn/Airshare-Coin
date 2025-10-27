@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Trades Overlay</title>
+<style>
+  :root {
+    --primary: #6366f1;
+    --secondary: #f59e0b;
+    --success: #10b981;
+    --bg-primary: #0f172a;
+    --bg-card: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --border: #334155;
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+  }
+
+  html, body { 
+    margin: 0; 
+    padding: 0; 
+    background: transparent; 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden; 
+  }
+
+  /* Modern popup container */
+  .popup {
+    position: absolute;
+    left: 50%; 
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    text-align: center;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-primary) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(10px);
+    min-width: 400px;
+    max-width: 500px;
+  }
+
+  /* Trade text styling */
+  .trade-text {
+    font-weight: 700;
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--success) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 4px 20px rgba(0,0,0,.6);
+    margin-top: 1rem;
+    line-height: 1.2;
+  }
+
+  /* GIF styling */
+  .gif {
+    display: block;
+    margin: 0 auto;
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Modern animations */
+  .show { 
+    animation: modernFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+  }
+  .hide { 
+    animation: modernFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+  }
+
+  @keyframes modernFadeIn { 
+    from {
+      opacity: 0; 
+      transform: translate(-50%, -50%) scale(0.9) rotateY(-10deg);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1; 
+      transform: translate(-50%, -50%) scale(1) rotateY(0deg);
+      filter: blur(0px);
+    } 
+  }
+
+  @keyframes modernFadeOut { 
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0deg);
+      filter: blur(0px);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9) rotateY(10deg);
+      filter: blur(4px);
+    } 
+  }
+
+  /* Glow effect for active state */
+  .popup.show {
+    box-shadow: 
+      var(--shadow-xl),
+      0 0 30px rgba(99, 102, 241, 0.3),
+      0 0 60px rgba(245, 158, 11, 0.2);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .popup {
+      min-width: 300px;
+      max-width: 350px;
+      padding: 1.5rem;
+    }
+    
+    .trade-text {
+      font-size: 1.5rem;
+    }
+    
+    .gif {
+      max-width: 250px;
+      max-height: 250px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div id="popup" class="popup">
+    <img id="gif" class="gif" src="" alt="celebration" />
+    <div id="trade" class="trade-text"></div>
+  </div>
+  <audio id="sfx" preload="auto">
+    <source src="kaching.mp3" type="audio/mpeg" />
+  </audio>
+
+<script>
+  const popup = document.getElementById("popup");
+  const gifEl = document.getElementById("gif");
+  const tradeEl = document.getElementById("trade");
+
+  const gifs = ["GIF1.gif","GIF2.gif","GIF3.gif","GIF4.gif"];
+  let last = "";
+
+  async function poll() {
+    try {
+      const txt = await fetch("trades.txt?bust=" + Date.now()).then(r => r.text());
+      const trade = (txt || "").trim();
+      if (trade && trade !== last) {
+        last = trade;
+
+        // Update content
+        tradeEl.textContent = trade;
+        gifEl.style.display = "block";
+        gifEl.src = gifs[Math.floor(Math.random() * gifs.length)] + "?t=" + Date.now();
+
+        // Play sound
+        try { 
+          document.getElementById('sfx').currentTime = 0; 
+          document.getElementById('sfx').play(); 
+        } catch(_) {}
+
+        // Show for 3 seconds with modern animation
+        popup.classList.remove("hide");
+        popup.classList.add("show");
+        popup.style.display = "block";
+        
+        clearTimeout(window.__t);
+        window.__t = setTimeout(() => {
+          popup.classList.remove("show");
+          popup.classList.add("hide");
+          setTimeout(() => { 
+            popup.style.display = "none"; 
+            gifEl.style.display = "none"; 
+            gifEl.src = ""; 
+          }, 300);
+        }, 3000);
+      }
+    } catch(e) {
+      // Ignore fetch errors during scene switches
+    }
+  }
+  
+  setInterval(poll, 1500);
+</script>
+</body>
+</html>
