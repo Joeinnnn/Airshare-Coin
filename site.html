@@ -549,7 +549,7 @@
           </svg>
           Open Pump.fun
         </a>
-        <a id="xBtn" class="btn btn-secondary" href="https://x.com/i/communities/1970111571679715570" target="_blank" rel="noopener">
+        <a id="xBtn" class="btn btn-secondary" href="https://x.com/i/communities/1982759127182201171" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
@@ -572,18 +572,18 @@
         <div class="stat-label">Market Cap</div>
         <div class="stat-value" id="cap">Market Cap: N/A</div>
         <div class="stat-change positive">Live tracking</div>
-      </div>
+        </div>
       <div class="stat-card">
         <div class="stat-label">Total Trades</div>
         <div class="stat-value" id="tradesCount">0</div>
         <div class="stat-change positive">Real-time</div>
-      </div>
+        </div>
       <div class="stat-card">
         <div class="stat-label">Airdrop Timer</div>
         <div class="stat-value" id="airdropCountdown">—</div>
         <div class="stat-change info">Countdown active</div>
+        </div>
       </div>
-    </div>
 
     <!-- Latest Trade Banner -->
     <div class="latest-trade" id="latest">
@@ -600,7 +600,7 @@
       <div class="panel">
         <div class="panel-header">
           <h3 class="panel-title">Leaderboard</h3>
-        </div>
+      </div>
         <div class="panel-body">
           <div id="topbuyers"></div>
           <div class="tx-description" id="topTraderLine">Top Trader: —</div>
@@ -611,7 +611,7 @@
       <div class="panel">
         <div class="panel-header">
           <h3 class="panel-title">Airdrop</h3>
-        </div>
+            </div>
         <div class="panel-body">
           <div class="airdrop-controls">
             <div class="airdrop-status" id="airdropStatus">Airdrop: —</div>
@@ -629,7 +629,7 @@
       <div class="panel">
         <div class="panel-header">
           <h3 class="panel-title">Recent Trades</h3>
-        </div>
+      </div>
         <div class="panel-body">
           <ul class="recent-trades" id="recent"></ul>
         </div>
@@ -704,7 +704,7 @@
           <span class="recent-trade-amount">${amount} SOL</span>
         `;
         
-        li.addEventListener('click', () => showBuyerDetailsFromLine(line));
+      li.addEventListener('click', () => showBuyerDetailsFromLine(line));
       } else {
         li.textContent = line;
       }
@@ -1082,11 +1082,11 @@
             if (amt >= GIF_MIN_SOL && window.__lastShownLine !== line) {
               document.getElementById('latestText').textContent = line;
               document.getElementById('latestText').className = 'latest-trade-text';
-              const latest = document.getElementById('latest');
-              latest.classList.remove('pulse');
-              void latest.offsetWidth;
-              latest.classList.add('pulse');
-              try { particleBurst(); } catch(_) {}
+            const latest = document.getElementById('latest');
+            latest.classList.remove('pulse');
+            void latest.offsetWidth;
+            latest.classList.add('pulse');
+            try { particleBurst(); } catch(_) {}
               window.__lastShownLine = line;
               setTimeout(()=>{ 
                 document.getElementById('latestText').textContent='Waiting for trades...';
