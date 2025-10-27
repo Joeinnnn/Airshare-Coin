@@ -6,180 +6,650 @@
   <title>Live Pump.fun Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0e1116;
-      --fg: #e6edf3;
-      --panel: #0b1220;
-      --border: #1f2a3a;
-      --muted: #93a4b7;
-      --brand: #58a6ff;   /* professional blue */
-      --accent: #238636;  /* success green */
-      --accent2: #58a6ff; /* secondary */
-      --header-gradient: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.07));
-      --success: #2ea043;
-      --scroll-track: #0b1220;
-      --scroll-thumb: #203047;
-      --card-radius: 12px;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      --border: #334155;
+      --border-light: #475569;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      
+      --radius-sm: 0.375rem;
+      --radius: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
     }
-    body[data-theme="light"] {
-      --bg: #f7f9fc;
-      --fg: #172136;
-      --panel: #ffffff;
-      --border: #e5ecf6;
-      --muted: #51627a;
-      --brand: #2b63ff;
-      --success: #0cb37a;
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    body { margin:0; background: var(--bg); color:var(--fg); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    /* CRT scanlines */
-    body::after { content:""; position:fixed; inset:0; pointer-events:none; background:
-      repeating-linear-gradient(0deg, rgba(255,255,255,.04), rgba(255,255,255,.04) 1px, transparent 1px, transparent 3px);
-      mix-blend-mode: overlay; opacity:.08; }
-    /* Neon grid */
-    body::before { content:""; position:fixed; inset:0; pointer-events:none; background:
-      radial-gradient(1200px 800px at 50% -20%, rgba(34,197,94,0.08), transparent),
-      radial-gradient(1200px 800px at 50% 120%, rgba(88,166,255,0.05), transparent),
-      repeating-linear-gradient(0deg, transparent 0 22px, rgba(34,197,94,0.07) 23px),
-      repeating-linear-gradient(90deg, transparent 0 22px, rgba(34,197,94,0.07) 23px);
-      animation: gridMove 22s linear infinite; opacity:.35; }
-    @keyframes gridMove { from { background-position: 0 0, 0 0, 0 0, 0 0; } to { background-position: 0 0, 0 0, 0 44px, 44px 0; } }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:transparent; border:0; border-radius: var(--card-radius); padding:8px 0; }
-    .brand { font-weight:800; font-size:20px; color:var(--brand); letter-spacing:.2px; }
-    .mint { font-size:13px; color:var(--muted); word-break:break-all; }
-    .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .btn { padding:8px 12px; background:var(--accent); color:#fff; border:1px solid #1f6f3a; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-block; transition: filter .15s ease, opacity .2s; box-shadow: 0 0 0 2px #0a141f inset, 0 0 12px rgba(34,197,94,.15); font-family: 'Press Start 2P', system-ui; font-size:11px; letter-spacing:.08em; }
-    .btn:hover { filter: brightness(1.05); }
-    .btn:active { transform: translateY(1px); }
-    .btn:disabled { opacity:.6; cursor:default; }
-    .hero { margin:18px 0; background:var(--panel); border:1px solid var(--border); border-radius: var(--card-radius); padding:12px; position:relative; overflow:hidden; }
-    .hero:before { content:""; position:absolute; inset:0; background:
-      repeating-linear-gradient(0deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px),
-      radial-gradient(800px 200px at 30% -20%, rgba(34,197,94,0.09), transparent),
-      radial-gradient(800px 200px at 70% 120%, rgba(34,197,94,0.06), transparent);
-      pointer-events:none; }
-    .hud { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; position:relative; z-index:1; }
-    .hud-card { border:1px solid var(--border); border-radius:10px; background:#0a141f; padding:10px 12px; box-shadow: 0 0 0 1px #183046 inset, 0 0 18px rgba(34,197,94,.08); }
-    .hud-card .label { font-family: 'Press Start 2P', system-ui; font-size:10px; color:#7aa6ff; letter-spacing:.15em; text-transform:uppercase; opacity:.9; }
-    .hud-card .value { font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:26px; color:#8fffba; text-shadow: 0 0 6px rgba(34,197,94,.6), 0 0 18px rgba(34,197,94,.2); margin-top:6px; }
-    .cap { font-size:30px; font-weight:900; font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:0; border-radius:0; background:transparent; border:0; color:#8fffba; letter-spacing:1px; text-shadow: 0 0 6px rgba(34,197,94,.6), 0 0 18px rgba(34,197,94,.2); transition: transform .2s ease, text-shadow .2s ease; }
-    .cap.cap-animate { transform: translateY(-1px); text-shadow: 0 0 10px rgba(34,197,94,.8), 0 0 26px rgba(34,197,94,.35); }
-    .chip { display:inline-block; padding:4px 8px; border-radius:6px; background:#0a141f; color:#7aa6ff; border:1px solid #183046; font-size:12px; font-family: 'Press Start 2P', system-ui; letter-spacing:.1em; }
-    .latest { margin:12px 0; padding:14px; border:1px solid var(--border); border-radius: var(--card-radius); background:var(--panel); display:flex; align-items:center; gap:12px; min-height:108px; position:relative; }
-    .latest.pulse { animation: latestPulse 900ms ease-out; }
-    @keyframes latestPulse { 0% { box-shadow: 0 0 0 rgba(34,197,94,0.0); border-color: var(--border);} 30% { box-shadow: 0 0 24px rgba(34,197,94,0.35); border-color: #2ea043;} 100% { box-shadow: 0 0 0 rgba(34,197,94,0.0); border-color: var(--border);} }
-    .notice { font-size:12px; color:var(--muted); margin-top:6px; }
-    .latest .text { font-size:22px; color:var(--success); font-weight:800; }
-    .cols { display:grid; grid-template-columns: 1fr 1fr; gap:16px; align-items:start; }
-    @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
-    .panel { background:var(--panel); border:1px solid var(--border); border-radius: var(--card-radius); overflow:hidden; }
-    .panel h3 { margin:0; padding:10px 12px; font-size:12px; color:#7aa6ff; border-bottom:1px solid var(--border); text-transform: uppercase; letter-spacing:.18em; font-family: 'Press Start 2P', system-ui; }
-    .panel .body { padding:12px 14px; font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:15px; line-height:1.5; white-space:pre-wrap; }
-    .panel .body.scroll { max-height: 420px; overflow: auto; }
-    .panel .body.scroll { max-height: 420px; overflow: auto; }
-    .list { list-style:none; margin:0; padding:0; }
-    .list li { padding:9px 12px; border-bottom:1px solid var(--border); font-family: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#b8d7c6; letter-spacing:.02em; }
-    .list li:hover { background:#0e1520; }
-    .small { font-size:12px; opacity:.85; }
-    a { color: var(--brand); }
 
-    /* Scrollbar: match page, hide arrows */
-    * { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) var(--scroll-track); }
-    ::-webkit-scrollbar { width: 10px; height: 10px; }
-    ::-webkit-scrollbar-track { background: var(--scroll-track); }
-    ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 8px; border: 2px solid var(--scroll-track); }
-    ::-webkit-scrollbar-button { width: 0; height: 0; display: none; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, #1a202c 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-    /* airdrop visual effects */
-    .airdrop-flash { animation: airdropFlash 800ms ease-out; }
-    @keyframes airdropFlash { 0% { box-shadow: 0 0 0 rgba(88,166,255,0); border-color: var(--border);} 50% { box-shadow: 0 0 26px rgba(88,166,255,.35); border-color: #58a6ff;} 100% { box-shadow: 0 0 0 rgba(88,166,255,0); border-color: var(--border);} }
-    .win-animate { animation: winGlow 1200ms ease-out; }
-    @keyframes winGlow { 0% { box-shadow: 0 0 0 rgba(88,166,255,0); } 40% { box-shadow: 0 0 26px rgba(88,166,255,.35); } 100% { box-shadow: 0 0 0 rgba(88,166,255,0); } }
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      padding: 1.5rem 0;
+    }
+
+    .logo {
+      font-size: 1.875rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .mint-info {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-light);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+      border-color: var(--border-light);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-change {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .stat-change.positive {
+      color: var(--success);
+    }
+
+    .stat-change.negative {
+      color: var(--danger);
+    }
+
+    /* Latest Trade Banner */
+    .latest-trade {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      margin-bottom: 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .latest-trade.pulse {
+      animation: tradePulse 0.8s ease-out;
+    }
+
+    @keyframes tradePulse {
+      0% { 
+        box-shadow: 0 0 0 rgba(99, 102, 241, 0);
+        border-color: var(--border);
+      }
+      50% { 
+        box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+        border-color: var(--primary);
+      }
+      100% { 
+        box-shadow: 0 0 0 rgba(99, 102, 241, 0);
+        border-color: var(--border);
+      }
+    }
+
+    .latest-trade-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--success);
+      margin: 0;
+    }
+
+    .latest-trade-text.waiting {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Main Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Panel */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .panel:hover {
+      border-color: var(--border-light);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .panel-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+    }
+
+    .panel-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .panel-body {
+      padding: 1.5rem;
+    }
+
+    /* Leaderboard */
+    .leaderboard-list {
+      list-style: none;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .leaderboard-item:hover {
+      background: var(--bg-hover);
+      margin: 0 -1.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .leaderboard-rank {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--primary);
+      min-width: 2rem;
+    }
+
+    .leaderboard-name {
+      flex: 1;
+      margin-left: 1rem;
+      font-weight: 500;
+    }
+
+    .leaderboard-stats {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Airdrop Section */
+    .airdrop-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .airdrop-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .airdrop-winners {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-top: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    /* Recent Trades */
+    .recent-trades {
+      list-style: none;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .recent-trade {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .recent-trade:hover {
+      background: var(--bg-hover);
+      margin: 0 -1.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    .recent-trade:last-child {
+      border-bottom: none;
+    }
+
+    .recent-trade-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .recent-trade-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    /* Transaction Link */
+    .tx-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: var(--primary);
+      text-decoration: none;
+      word-break: break-all;
+      transition: color 0.2s ease;
+    }
+
+    .tx-link:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    .tx-description {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: var(--radius);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Animations */
+    .cap-animate {
+      animation: capUpdate 0.5s ease-out;
+    }
+
+    @keyframes capUpdate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .win-animate {
+      animation: winGlow 1.2s ease-out;
+    }
+
+    @keyframes winGlow {
+      0% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+      50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.4); }
+      100% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .actions {
+        justify-content: center;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+
+      .latest-trade-text {
+        font-size: 1.25rem;
+      }
+    }
+
+    /* Confetti Canvas */
+    #confetti {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    #fxCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="controls">
-        <a id="pumpLink" class="btn" href="https://pump.fun" target="_blank" rel="noopener">Open on Pump.fun</a>
-        <a id="xBtn" class="btn" href="https://x.com/i/communities/1970111571679715570" target="_blank" rel="noopener">X Community</a>
-        <button id="shareTopBtn" class="btn" type="button">Share Top Buyers (PNG)</button>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">Pump Tracker</div>
+      <div class="mint-info" id="mint">Mint: —</div>
+      <div class="actions">
+        <a id="pumpLink" class="btn btn-primary" href="https://pump.fun" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15,3 21,3 21,9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Open Pump.fun
+        </a>
+        <a id="xBtn" class="btn btn-secondary" href="https://x.com/i/communities/1970111571679715570" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          X Community
+        </a>
+        <button id="shareTopBtn" class="btn btn-secondary" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+            <polyline points="16,6 12,2 8,6"></polyline>
+            <line x1="12" y1="2" x2="12" y2="15"></line>
+          </svg>
+          Export PNG
+        </button>
       </div>
-      <div class="mint" id="mint" style="margin-left:auto;">Mint: —</div>
     </header>
 
-    <section class="hero">
-      <div class="hud">
-        <div class="hud-card">
-          <div class="label">Market Cap</div>
-          <div class="value" id="cap">Market Cap: N/A</div>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Market Cap</div>
+        <div class="stat-value" id="cap">Market Cap: N/A</div>
+        <div class="stat-change positive">Live tracking</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Trades</div>
+        <div class="stat-value" id="tradesCount">0</div>
+        <div class="stat-change positive">Real-time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Airdrop Timer</div>
+        <div class="stat-value" id="airdropCountdown">—</div>
+        <div class="stat-change info">Countdown active</div>
+      </div>
+    </div>
+
+    <!-- Latest Trade Banner -->
+    <div class="latest-trade" id="latest">
+      <div class="latest-trade-text waiting" id="latestText">Waiting for trades...</div>
+      <canvas id="confetti"></canvas>
+    </div>
+
+    <!-- Fullscreen FX Canvas -->
+    <canvas id="fxCanvas"></canvas>
+
+    <!-- Main Content -->
+    <div class="content-grid">
+      <!-- Leaderboard -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">Leaderboard</h3>
         </div>
-        <div class="hud-card">
-          <div class="label">Trades</div>
-          <div class="value" id="tradesCount">0</div>
-        </div>
-        <div class="hud-card">
-          <div class="label">Airdrop</div>
-          <div class="value" id="airdropCountdown">—</div>
+        <div class="panel-body">
+          <div id="topbuyers"></div>
+          <div class="tx-description" id="topTraderLine">Top Trader: —</div>
         </div>
       </div>
-    </section>
 
-    <section class="latest" id="latest" style="position:relative;">
-      <div class="text" id="latestText">Waiting for buys…</div>
-      <canvas id="confetti" style="position:absolute; inset:0; pointer-events:none;"></canvas>
-    </section>
-    <!-- fullscreen FX canvas for bursts -->
-    <canvas id="fxCanvas" style="position:fixed; inset:0; pointer-events:none; z-index:5;"></canvas>
-    <div class="notice">* GIF popup shows only buys ≥ 0.1 SOL. The page may briefly switch views while syncing.</div>
-    <div class="notice">* Only buyers with ≥0.1 SOL buys will show your username and GIF.</div>
-
-    <section class="cols">
+      <!-- Airdrop -->
       <div class="panel">
-        <h3>Leaderboard</h3>
-        <div class="body scroll" id="topbuyers"></div>
-        <div class="small" id="topTraderLine" style="padding:8px 12px;">Top Trader: —</div>
-      </div>
-      <div class="panel">
-        <h3>Airdrop</h3>
-        <div class="body">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-            <div id="airdropStatus">Airdrop: —</div>
-            <div class="airdrop-actions">
-              <button id="airdropNowBtn" class="btn" type="button">Airdrop Now</button>
-            </div>
+        <div class="panel-header">
+          <h3 class="panel-title">Airdrop</h3>
+        </div>
+        <div class="panel-body">
+          <div class="airdrop-controls">
+            <div class="airdrop-status" id="airdropStatus">Airdrop: —</div>
+            <button id="airdropNowBtn" class="btn btn-primary" type="button">End Airdrop</button>
           </div>
-          <div class="small" style="margin:6px 0 10px 0;">Ends when countdown hits 0. You can also end now.</div>
-          <div id="winners" class="scroll" style="margin-top:10px; white-space:pre-wrap;"></div>
+          <div class="tx-description">Ends when countdown reaches zero or manually ended.</div>
+          <div id="winners" class="airdrop-winners"></div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="cols" style="margin-top:16px;">
+    <!-- Bottom Content -->
+    <div class="content-grid">
+      <!-- Recent Trades -->
       <div class="panel">
-        <h3>Recent Buys</h3>
-        <ul class="list" id="recent"></ul>
-      </div>
-      <div class="panel">
-        <h3>Latest Transaction</h3>
-        <div class="body">
-          <a id="txLink" href="#" target="_blank" rel="noopener" style="word-break:break-all; color:var(--brand); text-decoration:underline;">—</a>
-          <div class="small">Most recent buy signature. Click to view on Solscan.</div>
+        <div class="panel-header">
+          <h3 class="panel-title">Recent Trades</h3>
+        </div>
+        <div class="panel-body">
+          <ul class="recent-trades" id="recent"></ul>
         </div>
       </div>
-    </section>
 
-    
+      <!-- Latest Transaction -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">Latest Transaction</h3>
+        </div>
+        <div class="panel-body">
+          <a id="txLink" href="#" target="_blank" rel="noopener" class="tx-link">—</a>
+          <div class="tx-description">Most recent buy signature. Click to view on Solscan.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Process steps moved out for a cleaner look -->
-
-  
-
   <script>
-    // globals must be defined before use to avoid TDZ errors
+    // Global variables
     var lastCap = '';
     var pollTimer = null;
     var lastTopRaw = '';
@@ -187,24 +657,24 @@
     var lastTopJsonRaw = '';
     window.__lastWsMs = 0;
     window.__lastShownLine = '';
-    // Allow external data root override: /?dataRoot=https://data.example.com
+    
     const DATA_ROOT = new URLSearchParams(location.search).get('dataRoot') || '';
-    const SOUND_ENABLED = false; // disable kaching sound
-    // html2canvas for PNG export
+    const SOUND_ENABLED = false;
+    
+    // Load html2canvas for PNG export
     (function(){
       const s = document.createElement('script');
       s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-      s.defer = true; document.head.appendChild(s);
+      s.defer = true; 
+      document.head.appendChild(s);
     })();
+    
     const wsUrl = 'wss://pumpportal.fun/api/data';
-    let ws = null; // declare persistent WS handle
+    let ws = null;
     let currentMint = '';
-    // Aggregate by wallet address; store display name per address
-    const buyerStats = new Map(); // address -> { name, count, total }
+    const buyerStats = new Map();
     let trades = 0;
-    const TOP_BUYERS_LIMIT = 50; // show up to 50 instead of 10
-
-    // fixed site: mint comes from coin.txt
+    const TOP_BUYERS_LIMIT = 50;
 
     function shorten(addr) {
       if (!addr) return 'User';
@@ -213,7 +683,6 @@
 
     function updateTop() {
       // Client-side computed Top Buyers no longer used to avoid mismatch.
-      // Rendering handled by server file in the poll below.
     }
 
     const seenLines = new Set();
@@ -222,35 +691,52 @@
       seenLines.add(line);
       const ul = document.getElementById('recent');
       const li = document.createElement('li');
-      li.textContent = line;
-      li.style.cursor = 'pointer';
-      li.addEventListener('click', () => showBuyerDetailsFromLine(line));
+      li.className = 'recent-trade';
+      
+      // Parse the line to extract name and amount
+      const match = line.match(/^(.*?)\s+Bought\s+([0-9.]+)\s+SOL/i);
+      if (match) {
+        const name = match[1].trim();
+        const amount = match[2];
+        
+        li.innerHTML = `
+          <span class="recent-trade-name">${name}</span>
+          <span class="recent-trade-amount">${amount} SOL</span>
+        `;
+        
+        li.addEventListener('click', () => showBuyerDetailsFromLine(line));
+      } else {
+        li.textContent = line;
+      }
+      
       ul.prepend(li);
       while (ul.children.length > 20) ul.removeChild(ul.lastChild);
     }
+
     function showBuyerDetailsFromLine(line){
-      // extract display name from "<who> Bought <amt> SOL"
       const m = line.match(/^(.*)\s+Bought\s+([0-9.]+)\s+SOL/i);
       if (!m) return;
       const who = m[1].trim();
       showBuyerDetails(who);
     }
+
     function showBuyerDetails(displayName){
       const arr = loadHistory(currentMint || 'fallback');
       const seenS = new Set();
       const items = [];
       for (let i = arr.length - 1; i >= 0 && items.length < 20; i--) {
         const e = arr[i];
-        if (!e || !e.sig) continue; // only WS-confirmed
+        if (!e || !e.sig) continue;
         if (seenS.has(e.sig)) continue;
         if ((e.name || e.addr) !== displayName) continue;
-        seenS.add(e.sig); items.push(e);
+        seenS.add(e.sig); 
+        items.push(e);
       }
       const total = items.reduce((s,e)=> s + (Number(e.amount)||0), 0);
       alert(`${displayName}\nTrades: ${items.length}\nTotal: ${total.toFixed(4)} SOL\n\nRecent:\n` + items.map(e=>`• ${e.amount} SOL`).join('\n'));
     }
 
-    // ---- Persistent history (per mint) using localStorage ----
+    // Persistent history functions
     function historyKey(mint){ return 'pf_history_' + mint; }
     function loadHistory(mint){
       try { return JSON.parse(localStorage.getItem(historyKey(mint)) || '[]'); } catch { return []; }
@@ -258,7 +744,7 @@
     function saveHistory(mint, arr){
       try { localStorage.setItem(historyKey(mint), JSON.stringify(arr.slice(-500))); } catch {}
     }
-    // Track processed trade signatures to avoid double-counting across refreshes
+    
     function seenKey(mint){ return 'pf_seen_' + mint; }
     function loadSeen(mint){
       try { return new Set(JSON.parse(localStorage.getItem(seenKey(mint)) || '[]')); } catch { return new Set(); }
@@ -266,32 +752,37 @@
     function saveSeen(mint, seen){
       try { localStorage.setItem(seenKey(mint), JSON.stringify(Array.from(seen).slice(-2000))); } catch {}
     }
+
     function renderHistory(mint){
       const arr = loadHistory(mint);
       const ul = document.getElementById('recent');
       ul.innerHTML = '';
-      // Only reflect unique, WS-confirmed trades (with signature)
+      
       const seenS = new Set();
       const unique = [];
       for (const e of arr) {
         if (!e || !e.sig) continue;
         if (seenS.has(e.sig)) continue;
-        seenS.add(e.sig); unique.push(e);
+        seenS.add(e.sig); 
+        unique.push(e);
       }
+      
       unique.slice(-50).reverse().forEach(e => addRecent(`${e.name || shorten(e.addr)} Bought ${e.amount} SOL`));
-      // rebuild top buyers and trades count from history
-      buyerStats.clear(); trades = 0;
+      
+      buyerStats.clear(); 
+      trades = 0;
       for (const e of unique){
         const addr = e.addr || '';
         const s = buyerStats.get(addr) || { name: e.name || shorten(addr), count:0, total:0 };
-        s.count += 1; s.total += Number(e.amount)||0; buyerStats.set(addr, s);
+        s.count += 1; 
+        s.total += Number(e.amount)||0; 
+        buyerStats.set(addr, s);
         trades += 1;
       }
       document.getElementById('tradesCount').textContent = String(trades);
       updateTop();
     }
 
-    // Update header market cap from WS when provided; file-poll remains as fallback
     function setCapFromMsg(msg){
       const capSol = Number(msg && msg.marketCapSol);
       if (isFinite(capSol) && capSol > 0){
@@ -305,21 +796,21 @@
       if (ws) try { ws.close(); } catch(_) {}
       try { if (ws) ws.close(); } catch(_) {}
       ws = new WebSocket(wsUrl);
+      
       ws.addEventListener('open', () => {
-        // subscribe to both variants (with and without trailing 'pump')
         const mintNoSuffix = mint.replace(/pump$/i, '');
         const keys = Array.from(new Set([mint, mintNoSuffix].filter(Boolean)));
         const payload = { method: 'subscribeTokenTrade', keys };
         ws.send(JSON.stringify(payload));
         document.getElementById('mint').textContent = 'Mint: ' + mint;
         document.getElementById('pumpLink').href = 'https://pump.fun/coin/' + mint;
-        // Render any stored history for this mint immediately
         renderHistory(mint);
       });
+      
       ws.addEventListener('message', (ev) => {
         try {
           const raw = JSON.parse(ev.data);
-          if (raw.message) return; // subscription ack
+          if (raw.message) return;
           const data = raw.trade || raw || {};
           setCapFromMsg(data);
           const tx = String(data.txType || data.type || data.side || '').toLowerCase();
@@ -331,37 +822,42 @@
           const addr = String(data.traderPublicKey || data.buyer || data.account || '');
           const who = username || shorten(addr);
           const amount = Number(data.solAmount ?? data.sol ?? data.amount ?? data.size ?? 0);
-          // Signature-based dedupe BEFORE updating counts
+          
           const seen = loadSeen(mint);
           const sig = String(raw.signature || data.signature || data.sig || `${mm}:${addr}:${amount}`);
           if (seen.has(sig)) return;
-          const isWhale = amount >= 1; // threshold for whale/confetti
+          
+          const isWhale = amount >= 1;
           const line = `${isWhale ? '🐳 ' : ''}${who} Bought ${amount} SOL`;
           trades += 1;
           document.getElementById('tradesCount').textContent = String(trades);
-          // GIF popup only for buys >= 0.1 SOL and skip duplicate banner
+          
           const GIF_MIN_SOL = 0.1;
           if (amount >= GIF_MIN_SOL && window.__lastShownLine !== line) {
             document.getElementById('latestText').textContent = line;
-            // effect: pulse outline + confetti for whales
+            document.getElementById('latestText').className = 'latest-trade-text';
+            
             const latest = document.getElementById('latest');
             latest.classList.remove('pulse');
-            void latest.offsetWidth; // restart animation
+            void latest.offsetWidth;
             latest.classList.add('pulse');
             if (isWhale) triggerConfetti();
-            // particle burst
             try { particleBurst(); } catch(_) {}
             window.__lastShownLine = line;
-            // after 3s, return to standby text
-            setTimeout(()=>{ document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
+            setTimeout(()=>{ 
+              document.getElementById('latestText').textContent='Waiting for trades...';
+              document.getElementById('latestText').className = 'latest-trade-text waiting';
+            }, 3000);
           }
+          
           addRecent(line);
           const s = buyerStats.get(addr) || { name: who, count:0, total:0 };
           s.name = s.name || who;
-          s.count += 1; s.total += amount; buyerStats.set(addr, s);
+          s.count += 1; 
+          s.total += amount; 
+          buyerStats.set(addr, s);
           updateTop();
 
-          // persist with signature-based dedupe to avoid count growth on refresh
           const arr = loadHistory(mint);
           if (!seen.has(sig)){
             arr.push({ ts: Date.now(), addr, name: who, amount, sig });
@@ -371,7 +867,6 @@
           }
           window.__lastWsMs = Date.now();
         } catch(e) { console.warn('parse/ws error', e); }
-          // banner reset handled above only when shown
       });
     }
 
@@ -383,7 +878,10 @@
         document.getElementById('recent').innerHTML = '';
         document.getElementById('topbuyers').textContent = '';
         document.getElementById('tradesCount').textContent = '0';
-        seenLines.clear(); buyerStats.clear(); trades = 0; lastPolledTrade = '';
+        seenLines.clear(); 
+        buyerStats.clear(); 
+        trades = 0; 
+        lastPolledTrade = '';
       }
       localStorage.setItem('pf_current_mint', mint);
       currentMint = mint;
@@ -392,18 +890,15 @@
       if (prev !== mint) connect(mint);
     }
 
-    // Fixed: auto-connect to coin from coin.txt on load
+    // Initialize
     (function boot(){
-      // force dark theme and clear old toggle state
       try { document.body.removeAttribute('data-theme'); localStorage.removeItem('pf_theme'); } catch {}
-      // fixed theme — no dynamic accent
       try { localStorage.removeItem('pf_color1'); } catch {}
 
       fetchText('coin.txt')
         .then(txt => (txt || '').trim())
         .then(applyMint);
 
-      // Re-check coin.txt every 5s in case the tracker switches coins (migration or manual change)
       setInterval(() => {
         fetchText('coin.txt')
           .then(txt => (txt || '').trim())
@@ -412,35 +907,48 @@
       }, 5000);
     })();
 
-    // removed accent picker; fixed palette
     function triggerConfetti(){
       const canvas = document.getElementById('confetti');
       const ctx = canvas.getContext('2d');
       const box = canvas.parentElement.getBoundingClientRect();
-      canvas.width = box.width; canvas.height = box.height;
+      canvas.width = box.width; 
+      canvas.height = box.height;
+      
       const pieces = Array.from({length: 120}).map(()=>({
         x: Math.random()*canvas.width,
         y: -10,
         s: 2+Math.random()*4,
-        c: Math.random()<0.5? getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() : getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(),
+        c: Math.random()<0.5? '#6366f1' : '#f59e0b',
         v: 1+Math.random()*2,
         a: Math.random()*Math.PI*2
       }));
-      let t = 0; const maxT = 900; // ~1.2s
+      
+      let t = 0; 
+      const maxT = 900;
       function step(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        pieces.forEach(p=>{ p.y += p.v; p.x += Math.sin(p.a+=0.05); ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.s,p.s); });
-        t+=16; if (t<maxT) requestAnimationFrame(step); else ctx.clearRect(0,0,canvas.width,canvas.height);
+        pieces.forEach(p=>{ 
+          p.y += p.v; 
+          p.x += Math.sin(p.a+=0.05); 
+          ctx.fillStyle=p.c; 
+          ctx.fillRect(p.x,p.y,p.s,p.s); 
+        });
+        t+=16; 
+        if (t<maxT) requestAnimationFrame(step); 
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
       }
       requestAnimationFrame(step);
     }
+
     function particleBurst(){
       const canvas = document.getElementById('fxCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       const { innerWidth: W, innerHeight: H } = window;
-      canvas.width = W; canvas.height = H;
+      canvas.width = W; 
+      canvas.height = H;
       const cx = W * 0.5, cy = H * 0.25;
+      
       const parts = Array.from({length: 80}).map(()=>({
         x: cx, y: cy,
         vx: (Math.random()-0.5) * 6,
@@ -449,34 +957,23 @@
         size: 2 + Math.random()*3,
         hue: Math.random() < 0.5 ? 140 : 210
       }));
+      
       let start = performance.now();
       function frame(t){
-        const dt = 16; // approx
+        const dt = 16;
         ctx.clearRect(0,0,W,H);
         parts.forEach(p=>{
-          p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= dt;
+          p.x += p.vx; 
+          p.y += p.vy; 
+          p.vy += 0.05; 
+          p.life -= dt;
           ctx.fillStyle = `hsla(${p.hue}, 80%, 60%, ${Math.max(0, p.life/1000)})`;
           ctx.fillRect(p.x, p.y, p.size, p.size);
         });
-        if (performance.now() - start < 900) requestAnimationFrame(frame); else ctx.clearRect(0,0,W,H);
+        if (performance.now() - start < 900) requestAnimationFrame(frame); 
+        else ctx.clearRect(0,0,W,H);
       }
       requestAnimationFrame(frame);
-    }
-    function applyAccent(c1) {
-      const c2 = generateSiblingColor(c1);
-      document.documentElement.style.setProperty('--accent', c1);
-      document.documentElement.style.setProperty('--accent2', c2);
-      document.documentElement.style.setProperty('--accent-gradient', `linear-gradient(90deg, ${c1}, ${c2})`);
-      document.documentElement.style.setProperty('--header-gradient', `linear-gradient(90deg, ${c1}22, ${c2}22)`);
-      // tint the entire page using the accent
-      const baseBg = '#0b0f14';
-      const basePanel = '#0e1621';
-      const baseBorder = '#1f2a3a';
-      document.documentElement.style.setProperty('--bg', mix(baseBg, c1, 0.12));
-      document.documentElement.style.setProperty('--panel', mix(basePanel, c1, 0.10));
-      document.documentElement.style.setProperty('--border', mix(baseBorder, c1, 0.35));
-      document.documentElement.style.setProperty('--brand', c1);
-      try { localStorage.setItem('pf_color1', c1); } catch {}
     }
 
     // Share Top Buyers as PNG
@@ -489,25 +986,28 @@
         return alert('No Top Buyers to export yet.');
       }
       try {
-        // Wrap in a styled container to ensure nice background
         const wrapper = document.createElement('div');
-        wrapper.style.background = getComputedStyle(document.body).getPropertyValue('--panel') || '#0e1621';
-        wrapper.style.color = getComputedStyle(document.body).getPropertyValue('--fg') || '#e8f0f8';
+        wrapper.style.background = getComputedStyle(document.body).getPropertyValue('--bg-card') || '#1e293b';
+        wrapper.style.color = getComputedStyle(document.body).getPropertyValue('--text-primary') || '#f8fafc';
         wrapper.style.padding = '12px';
-        wrapper.style.border = '1px solid ' + (getComputedStyle(document.body).getPropertyValue('--border') || '#1f2a3a');
+        wrapper.style.border = '1px solid ' + (getComputedStyle(document.body).getPropertyValue('--border') || '#334155');
+        
         const title = document.createElement('div');
         title.textContent = 'Top Buyers';
         title.style.fontWeight = '700';
         title.style.marginBottom = '6px';
-        title.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        title.style.fontFamily = 'Inter, sans-serif';
         wrapper.appendChild(title);
+        
         const clone = panel.cloneNode(true);
         clone.style.maxWidth = '640px';
-        clone.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        clone.style.fontFamily = 'JetBrains Mono, monospace';
         wrapper.appendChild(clone);
         document.body.appendChild(wrapper);
+        
         const canvas = await html2canvas(wrapper, {backgroundColor: null, scale: 2});
         document.body.removeChild(wrapper);
+        
         const link = document.createElement('a');
         link.download = 'topbuyers.png';
         link.href = canvas.toDataURL('image/png');
@@ -517,9 +1017,8 @@
         alert('Export failed.');
       }
     });
-    try { if (accentPicker) accentPicker.addEventListener('input', (e)=> applyAccent(e.target.value)); } catch(_) {}
 
-    // --- Fallback polling for market cap (and optional text mirrors) ---
+    // Fetch functions
     async function fetchText(file){
       try {
         const base = DATA_ROOT ? DATA_ROOT.replace(/\/$/, '') + '/' : '';
@@ -528,17 +1027,19 @@
         return await res.text();
       } catch { return ''; }
     }
-    // Keep a memory of the last polled trade to avoid duplicates
+
     let lastPolledTrade = '';
     pollTimer = setInterval(async () => {
-      // Market Cap from local tracker (if running)
+      // Market Cap
       try {
         const cap = (await fetchText('marketcap.txt')).trim();
         if (cap) {
           lastCap = cap;
           const capEl = document.getElementById('cap');
           capEl.textContent = cap;
-          capEl.classList.remove('cap-animate'); void capEl.offsetWidth; capEl.classList.add('cap-animate');
+          capEl.classList.remove('cap-animate'); 
+          void capEl.offsetWidth; 
+          capEl.classList.add('cap-animate');
         } else if (lastCap) {
           document.getElementById('cap').textContent = lastCap;
         } else {
@@ -548,7 +1049,7 @@
         if (!lastCap) document.getElementById('cap').textContent = 'Market Cap: N/A';
       }
 
-      // Latest transaction hash (always poll)
+      // Latest transaction hash
       try {
         const tx = (await fetchText('txhash.txt')).trim();
         const link = document.getElementById('txLink');
@@ -562,17 +1063,16 @@
         }
       } catch(_) {}
 
-      // Recent buy fallback: only if no WS trades in the last 7s (avoid duplicate popup during lag)
+      // Recent buy fallback
       const wsMs = window.__lastWsMs || 0;
       const now = Date.now();
       const allowFallback = (now - wsMs) >= 7000;
       if (!allowFallback) return;
-      // read latest line from trades.txt and append to history
+      
       try {
         const latest = (await fetchText('trades.txt')).trim();
         if (latest && latest !== lastPolledTrade) {
           lastPolledTrade = latest;
-          // show banner only if >= 0.1 SOL and not shown already
           const m = latest.match(/^(.*)\s+Bought\s+([0-9.]+)\s+SOL/i);
           const GIF_MIN_SOL = 0.1;
           if (m) {
@@ -581,27 +1081,45 @@
             const line = `${who} Bought ${amt} SOL`;
             if (amt >= GIF_MIN_SOL && window.__lastShownLine !== line) {
               document.getElementById('latestText').textContent = line;
-            const latest = document.getElementById('latest');
-            latest.classList.remove('pulse');
-            void latest.offsetWidth;
-            latest.classList.add('pulse');
-            try { particleBurst(); } catch(_) {}
+              document.getElementById('latestText').className = 'latest-trade-text';
+              const latest = document.getElementById('latest');
+              latest.classList.remove('pulse');
+              void latest.offsetWidth;
+              latest.classList.add('pulse');
+              try { particleBurst(); } catch(_) {}
               window.__lastShownLine = line;
-            setTimeout(()=>{ document.getElementById('latestText').textContent='Waiting for buys…'; }, 3000);
+              setTimeout(()=>{ 
+                document.getElementById('latestText').textContent='Waiting for trades...';
+                document.getElementById('latestText').className = 'latest-trade-text waiting';
+              }, 3000);
             }
           }
         }
-        if (latest) addRecent(latest); // UI only; do not persist or update counts to avoid duplicates
+        if (latest) addRecent(latest);
       } catch(_) {}
 
-      // Render server-computed Top Buyers so all viewers see same state
+      // Render server-computed Top Buyers
       try {
         const top = (await fetchText('topbuyers.txt')).trim();
         const container = document.getElementById('topbuyers');
         if (top && top !== lastTopRaw) {
           const lines = top.split(/\r?\n/).filter(Boolean);
-          let html = '<ul style=\"list-style:none; padding-left:10px; margin:0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\">';
-          for (const line of lines) html += `<li style=\"padding:2px 0\">${line}</li>`;
+          let html = '<ul class="leaderboard-list">';
+          for (const line of lines) {
+            const match = line.match(/^(\d+)\.\s+(.*?)\s+-\s+([0-9.]+)\s+SOL\s+\((\d+)\)$/);
+            if (match) {
+              const [, rank, name, amount, count] = match;
+              html += `
+                <li class="leaderboard-item">
+                  <span class="leaderboard-rank">${rank}</span>
+                  <span class="leaderboard-name">${name}</span>
+                  <span class="leaderboard-stats">${amount} SOL (${count})</span>
+                </li>
+              `;
+            } else {
+              html += `<li class="leaderboard-item">${line}</li>`;
+            }
+          }
           html += '</ul>';
           container.innerHTML = html;
           lastTopRaw = top;
@@ -613,7 +1131,7 @@
         if (!lastTopRaw) container.textContent = '—';
       }
 
-      // Show current top trader from JSON (address-ranked)
+      // Show current top trader from JSON
       try {
         const topJson = (await fetchText('topbuyers.json')).trim();
         if (topJson && topJson !== lastTopJsonRaw) {
@@ -635,12 +1153,15 @@
           const statusEl = document.getElementById('airdropStatus');
           const winnersEl = document.getElementById('winners');
           const end = Number(txt)||0;
-          if (!(end>0)) { el.textContent = 'Airdrop: —'; statusEl.textContent = 'Airdrop: —'; return; }
+          if (!(end>0)) { 
+            el.textContent = 'Airdrop: —'; 
+            statusEl.textContent = 'Airdrop: —'; 
+            return; 
+          }
           const rem = end - Date.now();
           if (rem <= 0) {
             el.textContent = 'Airdrop: ended';
             statusEl.textContent = 'Airdrop: ended';
-            // try show winners if available
             try {
               const win = (await fetchText('airdrop_winners.json')).trim();
               if (win) {
@@ -648,9 +1169,12 @@
                 const list = (data && data.winners) || [];
                 if (list.length) {
                   winnersEl.textContent = 'Airdrop Winners:\n' + list.map((w,i)=>`${i+1}. ${w.address} — ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n');
-                  // winners effect
                   const airdropPanel = winnersEl.closest('.panel');
-                  if (airdropPanel) { airdropPanel.classList.remove('win-animate'); void airdropPanel.offsetWidth; airdropPanel.classList.add('win-animate'); }
+                  if (airdropPanel) { 
+                    airdropPanel.classList.remove('win-animate'); 
+                    void airdropPanel.offsetWidth; 
+                    airdropPanel.classList.add('win-animate'); 
+                  }
                 }
               }
             } catch(_) {}
@@ -667,13 +1191,11 @@
       tick();
       setInterval(tick, 1000);
 
-      // Manual end button
       async function forceAirdropRefresh(){
         try {
           const t = (await fetchText('airdrop_end.txt')).trim();
           const el = document.getElementById('airdropCountdown');
           el.textContent = t ? el.textContent : 'Airdrop: —';
-          // also try to render winners immediately if available
           const win = (await fetchText('airdrop_winners.json')).trim();
           if (win) {
             const data = JSON.parse(win);
@@ -689,7 +1211,8 @@
       document.getElementById('airdropNowBtn').addEventListener('click', async (e) => {
         const btn = e.currentTarget;
         const original = btn.textContent;
-        btn.disabled = true; btn.textContent = 'Ending…';
+        btn.disabled = true; 
+        btn.textContent = 'Ending…';
         try {
           const res = await fetch('/airdrop/now', { method: 'POST', headers: { 'cache-control':'no-cache' } });
           if (!res.ok) throw new Error('Request failed');
@@ -698,21 +1221,16 @@
         } finally {
           await new Promise(r=>setTimeout(r, 250));
           await forceAirdropRefresh();
-          // flash the airdrop panel for feedback
           try {
             const panel = btn.closest('.panel');
-            panel.classList.remove('airdrop-flash'); void panel.offsetWidth; panel.classList.add('airdrop-flash');
+            panel.classList.remove('win-animate'); 
+            void panel.offsetWidth; 
+            panel.classList.add('win-animate');
           } catch(_) {}
           setTimeout(()=>{ btn.disabled = false; btn.textContent = original; }, 800);
         }
       });
     })();
-
-    // Disable click-to-open details on rendered list (server lines have no data-name)
-
-    // (Pause button removed for viewer experience)
   </script>
 </body>
 </html>
-
-

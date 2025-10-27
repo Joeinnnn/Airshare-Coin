@@ -20,6 +20,16 @@ app.use(express.static(publicDir, {
 }));
 
 // Airdrop: allow ending immediately
+function pickRandomUnique(arr, k) {
+  const count = Math.min(k, Array.isArray(arr) ? arr.length : 0);
+  const a = Array.isArray(arr) ? arr.slice() : [];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a.slice(0, count);
+}
+
 app.post('/airdrop/now', (req, res) => {
   try {
     const endFile = path.join(__dirname, 'airdrop_end.txt');
@@ -30,8 +40,8 @@ app.post('/airdrop/now', (req, res) => {
       const tbPath = path.join(__dirname, 'topbuyers.json');
       const raw = fs.existsSync(tbPath) ? fs.readFileSync(tbPath, 'utf8') : '[]';
       const arr = JSON.parse(raw || '[]');
-      const topN = Math.max(1, Number(process.env.AIRDROP_TOP_N || 3));
-      const winners = (Array.isArray(arr) ? arr : []).slice(0, topN);
+      const pool = (Array.isArray(arr) ? arr : []).slice(0, 10);
+      const winners = pickRandomUnique(pool, 3);
       const winJson = { end: Date.now(), winners };
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.json'), JSON.stringify(winJson, null, 2), 'utf8');
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.txt'), winners.map(w => `${w.address} ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n'), 'utf8');
@@ -54,8 +64,8 @@ app.get('/airdrop/now', (req, res) => {
       const tbPath = path.join(__dirname, 'topbuyers.json');
       const raw = fs.existsSync(tbPath) ? fs.readFileSync(tbPath, 'utf8') : '[]';
       const arr = JSON.parse(raw || '[]');
-      const topN = Math.max(1, Number(process.env.AIRDROP_TOP_N || 3));
-      const winners = (Array.isArray(arr) ? arr : []).slice(0, topN);
+      const pool = (Array.isArray(arr) ? arr : []).slice(0, 10);
+      const winners = pickRandomUnique(pool, 3);
       const winJson = { end: Date.now(), winners };
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.json'), JSON.stringify(winJson, null, 2), 'utf8');
       fs.writeFileSync(path.join(__dirname, 'airdrop_winners.txt'), winners.map(w => `${w.address} ${Number(w.totalSol||0).toFixed(4)} SOL`).join('\n'), 'utf8');

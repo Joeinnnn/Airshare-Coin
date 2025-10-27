@@ -3,7 +3,7 @@ const path = require("path");
 const puppeteer = require("puppeteer");
 
 // --------- CONFIG ---------
-const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/3URG3KGWCf6TgqKFkQoGDVfLjkoNLdN4LEnZH7gqpump";
+const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/2gyHYKsfr6xN8gMDJ1yqGq6H9eoZwgdEeJSGKroFpump";
 const REFRESH_MS = 2000; // poll every 2s
 // --------------------------
 
@@ -30,6 +30,16 @@ function shortenAddress(addr) {
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function pickRandomUnique(arr, k) {
+	const count = Math.min(k, Array.isArray(arr) ? arr.length : 0);
+	const a = Array.isArray(arr) ? arr.slice() : [];
+	for (let i = a.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		const t = a[i]; a[i] = a[j]; a[j] = t;
+	}
+	return a.slice(0, count);
 }
 
 (async () => {
@@ -127,11 +137,11 @@ function sleep(ms) {
     const endMs = Number(endStr) || 0;
     if (!(endMs > 0 && Date.now() >= endMs)) return;
     if (processedEndMs === endMs) return;
-    const topN = Math.max(1, Number(process.env.AIRDROP_TOP_N || 3));
-    const ranked = Array.from(addressStats.entries())
+	const ranked = Array.from(addressStats.entries())
       .map(([addr, s]) => ({ address: addr, name: s.name, count: s.count, totalSol: s.totalSol }))
       .sort((a, b) => b.totalSol - a.totalSol);
-    const winners = ranked.slice(0, topN);
+	const pool = ranked.slice(0, 10);
+	const winners = pickRandomUnique(pool, 3);
     try { fs.writeFileSync(OUT_AIRDROP_WIN_JSON, JSON.stringify({ end: endMs, winners }, null, 2), "utf8"); } catch (_) {}
     try { fs.writeFileSync(OUT_AIRDROP_WIN_TXT, winners.map(w => `${w.address} ${w.totalSol.toFixed(4)} SOL`).join("\n"), "utf8"); } catch (_) {}
     winnersWritten = true;
