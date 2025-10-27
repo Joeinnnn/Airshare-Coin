@@ -615,9 +615,8 @@
         <div class="panel-body">
           <div class="airdrop-controls">
             <div class="airdrop-status" id="airdropStatus">Airdrop: —</div>
-            <button id="airdropNowBtn" class="btn btn-primary" type="button">End Airdrop</button>
           </div>
-          <div class="tx-description">Ends when countdown reaches zero or manually ended.</div>
+          <div class="tx-description">Automatically restarts every 1 minute. Winners selected from top 10 buyers.</div>
           <div id="winners" class="airdrop-winners"></div>
         </div>
       </div>
@@ -634,17 +633,6 @@
           <ul class="recent-trades" id="recent"></ul>
         </div>
       </div>
-
-      <!-- Latest Transaction -->
-      <div class="panel">
-        <div class="panel-header">
-          <h3 class="panel-title">Latest Transaction</h3>
-        </div>
-        <div class="panel-body">
-          <a id="txLink" href="#" target="_blank" rel="noopener" class="tx-link">—</a>
-          <div class="tx-description">Most recent buy signature. Click to view on Solscan.</div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -653,7 +641,6 @@
     var lastCap = '';
     var pollTimer = null;
     var lastTopRaw = '';
-    var lastTxHash = '';
     var lastTopJsonRaw = '';
     window.__lastWsMs = 0;
     window.__lastShownLine = '';
@@ -1049,19 +1036,7 @@
         if (!lastCap) document.getElementById('cap').textContent = 'Market Cap: N/A';
       }
 
-      // Latest transaction hash
-      try {
-        const tx = (await fetchText('txhash.txt')).trim();
-        const link = document.getElementById('txLink');
-        if (tx && tx !== lastTxHash) {
-          lastTxHash = tx;
-          link.textContent = tx;
-          link.href = 'https://solscan.io/tx/' + encodeURIComponent(tx);
-        } else if (!tx && !lastTxHash) {
-          link.textContent = '—';
-          link.removeAttribute('href');
-        }
-      } catch(_) {}
+      // Latest transaction hash - removed (not working with current WebSocket data)
 
       // Recent buy fallback
       const wsMs = window.__lastWsMs || 0;
@@ -1106,6 +1081,7 @@
           const lines = top.split(/\r?\n/).filter(Boolean);
           let html = '<ul class="leaderboard-list">';
           for (const line of lines) {
+            // More flexible regex to handle different formats
             const match = line.match(/^(\d+)\.\s+(.*?)\s+-\s+([0-9.]+)\s+SOL\s+\((\d+)\)$/);
             if (match) {
               const [, rank, name, amount, count] = match;
@@ -1117,6 +1093,7 @@
                 </li>
               `;
             } else {
+              // Fallback for any format
               html += `<li class="leaderboard-item">${line}</li>`;
             }
           }
@@ -1124,11 +1101,12 @@
           container.innerHTML = html;
           lastTopRaw = top;
         } else if (!top && !lastTopRaw) {
-          container.textContent = '—';
+          container.textContent = 'No buyers yet...';
         }
-      } catch(_) {
+      } catch(e) {
+        console.log('Leaderboard error:', e);
         const container = document.getElementById('topbuyers');
-        if (!lastTopRaw) container.textContent = '—';
+        if (!lastTopRaw) container.textContent = 'No buyers yet...';
       }
 
       // Show current top trader from JSON
@@ -1208,28 +1186,7 @@
         } catch(_) {}
       }
 
-      document.getElementById('airdropNowBtn').addEventListener('click', async (e) => {
-        const btn = e.currentTarget;
-        const original = btn.textContent;
-        btn.disabled = true; 
-        btn.textContent = 'Ending…';
-        try {
-          const res = await fetch('/airdrop/now', { method: 'POST', headers: { 'cache-control':'no-cache' } });
-          if (!res.ok) throw new Error('Request failed');
-        } catch (_) {
-          try { await fetch('/airdrop/now', { method: 'GET' }); } catch (_) {}
-        } finally {
-          await new Promise(r=>setTimeout(r, 250));
-          await forceAirdropRefresh();
-          try {
-            const panel = btn.closest('.panel');
-            panel.classList.remove('win-animate'); 
-            void panel.offsetWidth; 
-            panel.classList.add('win-animate');
-          } catch(_) {}
-          setTimeout(()=>{ btn.disabled = false; btn.textContent = original; }, 800);
-        }
-      });
+      // Manual airdrop button removed - airdrops are now fully automatic
     })();
   </script>
 </body>

@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer");
 const { WebSocket } = require("ws");
 
 // --------- CONFIG ---------
-const COIN_URL = process.env.COIN_URL || "https://pump.fun/coin/2gyHYKsfr6xN8gMDJ1yqGq6H9eoZwgdEeJSGKroFpump";
+const COIN_URL = process.env.COIN_URL || "";
 const REFRESH_MS = 2000; // poll every 2s
 // --------------------------
 
@@ -91,8 +91,8 @@ function pickRandomUnique(arr, k) {
   if (!fs.existsSync(OUT_AIRDROP_END)) {
     const envEnd = Number(process.env.AIRDROP_END_EPOCH_MS || 0);
     const durationMin = Number(process.env.AIRDROP_DURATION_MIN || 0);
-    // Default 5 minutes if not configured
-    const defaultDurationMs = 5 * 60_000;
+    // Default 1 minute if not configured
+    const defaultDurationMs = 1 * 60_000;
     const chosenDurationMs = durationMin > 0 ? durationMin * 60_000 : defaultDurationMs;
     const endMs = envEnd > Date.now() ? envEnd : (Date.now() + chosenDurationMs);
     fs.writeFileSync(OUT_AIRDROP_END, String(endMs), "utf8");
@@ -141,9 +141,20 @@ function pickRandomUnique(arr, k) {
     const endMs = Number(endStr) || 0;
     if (!(endMs > 0 && Date.now() >= endMs)) return;
     if (processedEndMs === endMs) return;
-	const ranked = Array.from(addressStats.entries())
-      .map(([addr, s]) => ({ address: addr, name: s.name, count: s.count, totalSol: s.totalSol }))
-      .sort((a, b) => b.totalSol - a.totalSol);
+    
+    // Read from the JSON file instead of in-memory stats
+    let ranked = [];
+    try {
+      const raw = fs.readFileSync(OUT_TOP_BUYERS_JSON, "utf8");
+      const arr = JSON.parse(raw || "[]");
+      ranked = Array.isArray(arr) ? arr : [];
+    } catch (_) {
+      // Fallback to in-memory stats if JSON read fails
+      ranked = Array.from(addressStats.entries())
+        .map(([addr, s]) => ({ address: addr, name: s.name, count: s.count, totalSol: s.totalSol }))
+        .sort((a, b) => b.totalSol - a.totalSol);
+    }
+    
 	const pool = ranked.slice(0, 10);
 	const winners = pickRandomUnique(pool, 3);
     try { fs.writeFileSync(OUT_AIRDROP_WIN_JSON, JSON.stringify({ end: endMs, winners }, null, 2), "utf8"); } catch (_) {}
@@ -152,7 +163,7 @@ function pickRandomUnique(arr, k) {
     processedEndMs = endMs;
 
     // Immediately schedule the next round end (manual override > env > default)
-    let nextDurationMin = Number(process.env.AIRDROP_DURATION_MIN || 5);
+    let nextDurationMin = Number(process.env.AIRDROP_DURATION_MIN || 1);
     try {
       if (fs.existsSync(OUT_AIRDROP_NEXT_OVERRIDE)) {
         const ov = parseInt((fs.readFileSync(OUT_AIRDROP_NEXT_OVERRIDE, "utf8").trim() || ""), 10);
@@ -204,6 +215,17 @@ function pickRandomUnique(arr, k) {
 				if (msg.txType || msg.message) {
 					console.log("📡 WS:", msg.txType || msg.message, msg.mint || "");
 					console.log("📡 Full message:", JSON.stringify(msg, null, 2));
+					// Debug transaction signature fields
+					console.log("📡 TX Fields:", {
+						signature: msg.signature,
+						sig: msg.sig,
+						transactionHash: msg.transactionHash,
+						hash: msg.hash,
+						txSignature: msg.txSignature,
+						txid: msg.txid,
+						txId: msg.txId,
+						tx: msg.tx
+					});
 				}
 				
 				// Handle possible migration event to auto-switch mint
